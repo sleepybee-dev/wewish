@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1069168519679",
+    "project_id": "wewish-b573a",
+    "storage_bucket": "wewish-b573a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069168519679:android:faf61e0bfbe0b50ffd5fca",
+        "android_client_info": {
+          "package_name": "com.codeinsongdo.wewish.wewish"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069168519679-jokosllp8lev64rl9p8botq01d8n9ro4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH1sfHZ5o1448EtbVu-c7IroStmlyvOGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069168519679-jokosllp8lev64rl9p8botq01d8n9ro4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
