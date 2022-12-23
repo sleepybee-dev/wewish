@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-class BottomNavProvider extends ChangeNotifier{
+class NavigationProvider extends ChangeNotifier{
   int _index = 0;
   int get currentPage => _index;
 

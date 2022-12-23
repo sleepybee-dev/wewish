@@ -6,6 +6,7 @@ import 'package:wewish/firebase_options.dart';
 import 'package:wewish/home.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
 import 'package:wewish/provider/provider_registry.dart';
+import 'package:wewish/router.dart' as router;
 
 void main() async {
   runApp(const MyApp());
@@ -20,31 +21,34 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'WeWish',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (BuildContext context) => NavigationProvider()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => RegistryProvider())
+      ],
+      child: MaterialApp(
+          title: 'WeWish',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          onGenerateRoute: router.generateRoute,
+          initialRoute: router.home,
+          // home: LayoutBuilder(builder: (context, constraints) {
+          //   if (kIsWeb) {
+          //     if (constraints.maxWidth >= 1080) {
+          //       return _buildThreeColumnHome();
+          //     } else if (constraints.maxWidth >= 768) {
+          //       return _buildTwoColumnHome() ;
+          //     } else {
+          //       return Home();
+          //     }
+          //   } else {
+          //     return Home();
+          //   }
+          // })
       ),
-      home: MultiProvider(
-          providers: [
-            ChangeNotifierProvider(
-                create: (BuildContext context) => BottomNavProvider()),
-            ChangeNotifierProvider(
-                create: (BuildContext context) => RegistryProvider())
-          ],
-          child: LayoutBuilder(builder: (context, constraints) {
-            if (kIsWeb) {
-              if (constraints.maxWidth >= 1000) {
-                return _buildThreeColumnHome();
-              } else if (constraints.maxWidth >= 768) {
-                return _buildTwoColumnHome();
-              } else {
-                return Home();
-              }
-            } else {
-              return Home();
-            }
-          })),
     );
   }
 
@@ -57,7 +61,8 @@ class MyApp extends StatelessWidget {
             color: Colors.amber,
           ),
         ),
-        SizedBox(width: 768,
+        SizedBox(
+          width: 768,
           child: Home(),
         ),
         Flexible(
@@ -78,7 +83,8 @@ class MyApp extends StatelessWidget {
             color: Colors.amber,
           ),
         ),
-        SizedBox(width: 768,
+        SizedBox(
+          width: 768,
           child: Home(),
         )
       ],

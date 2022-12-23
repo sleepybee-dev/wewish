@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
-import 'package:wewish/page/page_registry.dart';
 import 'package:wewish/provider/provider_registry.dart';
+import 'package:wewish/router.dart' as router;
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -79,10 +79,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _goRegistryPage(RegistryItem registryItem) {
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) => RegistryPage(registryItem: registryItem)
-        )
-    );
+    Navigator.pushNamed(context, router.wishlistPage, arguments: registryItem);
   }
 
   Widget _buildProfile(UserItem user) {
