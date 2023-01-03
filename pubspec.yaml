@@ -45,6 +45,9 @@ dependencies:
   html: ^0.15.1
   url_launcher: ^6.1.7
   firebase_storage: ^11.0.9
+  cp949_dart: ^1.0.0+1
+
+  csv: ^5.0.1
 
 dev_dependencies:
   flutter_test:
