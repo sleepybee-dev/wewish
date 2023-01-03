@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wewish/page/page_my_givelist.dart';
 import 'package:wewish/page/page_my_wishlist.dart';
+import 'package:wewish/router.dart' as router;
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -21,6 +22,10 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _goAddPage(),
+      ),
       body: Column(
         children: [
           Container(
@@ -87,5 +92,9 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  _goAddPage() {
+    Navigator.pushNamed(context, router.wishSettingPage);
   }
 }

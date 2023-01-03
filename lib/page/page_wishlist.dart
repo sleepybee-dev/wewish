@@ -5,10 +5,10 @@ import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/util/meta_parser.dart';
 
-class RegistryPage extends StatelessWidget {
+class WishListPage extends StatelessWidget {
   final RegistryItem registryItem;
 
-  const RegistryPage({Key? key, required this.registryItem}) : super(key: key);
+  const WishListPage({Key? key, required this.registryItem}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

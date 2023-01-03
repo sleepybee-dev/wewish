@@ -35,19 +35,19 @@ class MyApp extends StatelessWidget {
           ),
           onGenerateRoute: router.generateRoute,
           initialRoute: router.home,
-          // home: LayoutBuilder(builder: (context, constraints) {
-          //   if (kIsWeb) {
-          //     if (constraints.maxWidth >= 1080) {
-          //       return _buildThreeColumnHome();
-          //     } else if (constraints.maxWidth >= 768) {
-          //       return _buildTwoColumnHome() ;
-          //     } else {
-          //       return Home();
-          //     }
-          //   } else {
-          //     return Home();
-          //   }
-          // })
+          home: LayoutBuilder(builder: (context, constraints) {
+            if (kIsWeb) {
+              if (constraints.maxWidth >= 1200) {
+                return _buildThreeColumnHome();
+              // } else if (constraints.maxWidth >= 768) {
+              //   return _buildTwoColumnHome() ;
+              } else {
+                return Home();
+              }
+            } else {
+              return Home();
+            }
+          })
       ),
     );
   }
@@ -56,13 +56,13 @@ class MyApp extends StatelessWidget {
     return Row(
       children: [
         Flexible(
-          flex: 2,
+          flex: 1,
           child: Container(
             color: Colors.amber,
           ),
         ),
         SizedBox(
-          width: 768,
+          width: 1200,
           child: Home(),
         ),
         Flexible(
