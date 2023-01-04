@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/page/page_home.dart';
 import 'package:wewish/page/page_my.dart';
@@ -30,7 +31,7 @@ class Home extends StatelessWidget {
       case 0:
         return const SearchPage();
       case 1:
-        return const ListPage();
+        return const HomePage();
       case 2:
         return const MyPage();
     }

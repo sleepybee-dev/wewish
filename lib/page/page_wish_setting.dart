@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/model/item_category.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/provider/provider_registry.dart';
+import 'package:wewish/ui/button_text_primary.dart';
 import 'package:wewish/util/category_parser.dart';
 
 class WishSettingPage extends StatefulWidget {
@@ -17,9 +19,12 @@ class WishSettingPage extends StatefulWidget {
   State<WishSettingPage> createState() => _WishSettingPageState();
 }
 
-class _WishSettingPageState extends State<WishSettingPage> {
-  TextEditingController _editingController = TextEditingController();
+class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingObserver{
+  final TextEditingController _nameEditingController = TextEditingController();
+  final TextEditingController _urlEditingController = TextEditingController();
+
   late RegistryProvider _registryProvider;
+  final GlobalKey _scaffoldKey = GlobalKey();
 
   @override
   void didChangeDependencies() {
@@ -30,11 +35,17 @@ class _WishSettingPageState extends State<WishSettingPage> {
   @override
   void initState() {
     super.initState();
-    _checkClipboard().then((clipboardText) {
-      if (clipboardText != null) {
-        _showCopySnackBar(clipboardText);
-      }
-    });
+    _doCheckClipboard();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    Logger logger = Logger(printer: PrettyPrinter());
+    logger.d(state);
+    if (state == AppLifecycleState.resumed) {
+      _doCheckClipboard();
+    }
   }
 
   @override
@@ -43,10 +54,8 @@ class _WishSettingPageState extends State<WishSettingPage> {
         child: Scaffold(appBar: AppBar(title: Text('')), body: _buildBody()));
   }
 
-  String _curCategory = '뷰티';
+  final CategoryItem _curCategoryItem = CategoryItem();
   Map<String, List<String>>? _curCategoryMap;
-  String _curPart1 = '';
-  String _curPart2 = '';
 
   Widget _buildBody() {
     return Stack(children: [
@@ -59,30 +68,37 @@ class _WishSettingPageState extends State<WishSettingPage> {
       Column(
         children: [
           Row(
-            children: [Text('name'), Expanded(child: TextField())],
-          ),
-          Row(
             children: [
               Text('url'),
               Expanded(
                   child: TextField(
-                controller: _editingController,
+                controller: _urlEditingController,
               ))
             ],
           ),
+          Row(
+            children: [Text('상품명'), Expanded(child: TextField(
+              controller: _nameEditingController,
+
+            ))],
+          ),
           TextButton(
-              onPressed: _showCategoryBottomSheet, child: Text(_curCategory)),
+              onPressed: _showCategoryBottomSheet, child: Container(
+            alignment: Alignment.center,
+            width: double.infinity,
+              height: 56,
+              child: Text(_curCategoryItem.category.isEmpty ? '카테고리 선택' : _curCategoryItem.category, style: TextStyle(color: Theme.of(context).primaryColor),))),
           TextButton(
               onPressed: () => _curCategoryMap != null
                   ? _showCategoryPart1Sheet(_curCategoryMap!)
                   : {},
-              child: Text(_curPart1)),
+              child: Text(_curCategoryItem.part1)),
           TextButton(
               onPressed: () => _curCategoryMap != null
-                  ? _showCategoryPart2Sheet(_curCategoryMap![_curPart1])
+                  ? _showCategoryPart2Sheet(_curCategoryMap![_curCategoryItem.part1])
                   : {},
-              child: Text(_curPart2)),
-          TextButton(onPressed: () => _addWish(), child: Text('위시 추가'))
+              child: Text(_curCategoryItem.part2)),
+          PrimaryTextButton(onPressed: () => _addWish(), label: '위시 추가')
         ],
       ),
     ]);
@@ -99,7 +115,7 @@ class _WishSettingPageState extends State<WishSettingPage> {
               return TextButton(
                   onPressed: () {
                     setState(() {
-                      _curCategory = categoryItem.label;
+                      _curCategoryItem.category = categoryItem.label;
                     });
                     Navigator.pop(context);
                     _fetchCategoryPart(categoryItem);
@@ -125,7 +141,7 @@ class _WishSettingPageState extends State<WishSettingPage> {
     });
   }
 
-  Future<String?> _checkClipboard() async {
+  Future<String?> _fetchClipboardData() async {
     ClipboardData? clipboardData =
         await Clipboard.getData(Clipboard.kTextPlain);
     if (clipboardData != null) {
@@ -138,13 +154,14 @@ class _WishSettingPageState extends State<WishSettingPage> {
 
   void _showCopySnackBar(String clipboardText) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      key: _scaffoldKey,
       duration: const Duration(seconds: 5),
-      content: Text(clipboardText),
+      content: Text(clipboardText, maxLines: 2, overflow: TextOverflow.ellipsis,),
       action: SnackBarAction(
         label: '붙여넣기',
         onPressed: () {
           setState(() {
-            _editingController.text = clipboardText;
+            _urlEditingController.text = clipboardText;
           });
         },
       ),
@@ -165,7 +182,7 @@ class _WishSettingPageState extends State<WishSettingPage> {
                   onTap: () {
                     Navigator.pop(context);
                     setState(() {
-                      _curPart2 = part2List[index];
+                      _curCategoryItem.part2 = part2List[index];
                     });
                   },
                   child: Container(
@@ -189,7 +206,7 @@ class _WishSettingPageState extends State<WishSettingPage> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      _curPart1 = keys[index];
+                      _curCategoryItem.part1 = keys[index];
                     });
                     Navigator.pop(context);
                     _showCategoryPart2Sheet(categoryMap[keys[index]]);
@@ -204,19 +221,30 @@ class _WishSettingPageState extends State<WishSettingPage> {
   }
 
   _addWish() {
-    CategoryItem categoryItem = CategoryItem()
-      ..category = _curCategory
-      ..part1 = _curPart1
-      ..part2 = _curPart2;
+    CategoryItem categoryItem = _curCategoryItem;
 
     WishItem wishItem = WishItem()
       ..createdDate = DateTime.now()
       ..modifiedDate = DateTime.now()
       ..name = ''
       ..price = 200
-      ..url = _editingController.text
+      ..url = _urlEditingController.text
       ..category = categoryItem;
 
     _registryProvider.addRegistry("HcRzmebMekTFo4w9jm2u", wishItem);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _doCheckClipboard() {
+    _fetchClipboardData().then((clipboardText) {
+      if (clipboardText != null) {
+        _showCopySnackBar(clipboardText);
+      }
+    });
   }
 }
