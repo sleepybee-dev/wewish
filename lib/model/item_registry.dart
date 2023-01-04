@@ -14,6 +14,7 @@ class RegistryItem {
           .toList();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'user' : user
+    'user' : user,
+    'wishlist': wishList
   };
 }

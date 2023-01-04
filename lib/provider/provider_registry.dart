@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:wewish/model/item_registry.dart';
+import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/repository/repository_regi.dart';
 
 class RegistryProvider extends ChangeNotifier {
@@ -14,6 +15,11 @@ class RegistryProvider extends ChangeNotifier {
   fetchRegistryList(String keyword) async {
     _registryList = await _regiRepository.fetchRegistry(keyword);
     logger.d(_registryList);
+    notifyListeners();
+  }
+
+  addRegistry(String uId, WishItem wishItem) async {
+    await _regiRepository.addRegistry(uId, wishItem);
     notifyListeners();
   }
 
