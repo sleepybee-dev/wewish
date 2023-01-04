@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wewish/model/item_category.dart';
 
 class WishItem {
@@ -15,8 +16,8 @@ class WishItem {
         url = json['url'] as String,
         category = json['category'] == null ? CategoryItem() : CategoryItem.fromJson(json['category']),
         price = json['price'] as int,
-        createdDate = json['createdDate'] == null ? DateTime.now() : json['createdDate'] as DateTime,
-        modifiedDate = json['modifiedDate'] == null ? DateTime.now() : json['modifiedDate'] as DateTime;
+        createdDate = json['createdDate'] == null ? DateTime.now() : (json['createdDate'] as Timestamp).toDate(),
+        modifiedDate = json['modifiedDate'] == null ? DateTime.now() : (json['modifiedDate'] as Timestamp).toDate();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'name' : name,
