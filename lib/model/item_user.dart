@@ -9,7 +9,7 @@ class UserItem {
   UserItem.fromJson(Map<String, dynamic> json)
       : uId = json['uId'],
         nickname = json['nickname'],
-        hashTag = json['hashtag'] == null ? [] : json['hashtag'] as List<String>,
+        hashTag = json['hashtag'] == null ? [] : (json['hashtag'] as List<dynamic>).map((e) => e.toString()).toList(),
         profileUrl = json['profileUrl'] ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU';
 
   Map<String, dynamic> toJson() => <String, dynamic> {
