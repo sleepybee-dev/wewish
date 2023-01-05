@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/firebase_options.dart';
 import 'package:wewish/home.dart';
@@ -9,14 +12,15 @@ import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/router.dart' as router;
 
 void main() async {
-  runApp(const MyApp());
+  runApp(MyApp());
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
 
   // This widget is the root of your application.
   @override
@@ -30,17 +34,15 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
           title: 'WeWish',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-          ),
+          theme: _wewishTheme,
           onGenerateRoute: router.generateRoute,
           initialRoute: router.home,
           home: LayoutBuilder(builder: (context, constraints) {
             if (kIsWeb) {
               if (constraints.maxWidth >= 1200) {
                 return _buildThreeColumnHome();
-              // } else if (constraints.maxWidth >= 768) {
-              //   return _buildTwoColumnHome() ;
+                // } else if (constraints.maxWidth >= 768) {
+                //   return _buildTwoColumnHome() ;
               } else {
                 return Home();
               }
@@ -90,4 +92,20 @@ class MyApp extends StatelessWidget {
       ],
     );
   }
+
+  final _wewishTheme = ThemeData(
+    // colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF90DFF9)),
+    primarySwatch: const MaterialColor(0xFF90DFF9, {
+      50: Color(0xffe5f4fd),
+      100: Color(0xffbee3fa),
+      200: Color(0xff97d2f8),
+      300: Color(0xff6fbff5),
+      400: Color(0xff50b1f4),
+      500: Color(0xff2fa4f4),
+      600: Color(0xff2796e7),
+      700: Color(0xff1c84d4),
+      800: Color(0xff1273c3),
+      900: Color(0xff0055a6),
+    }),
+  );
 }

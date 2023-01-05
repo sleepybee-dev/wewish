@@ -1,5 +1,4 @@
 import 'package:csv/csv.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:cp949_dart/cp949_dart.dart' as cp949;
@@ -15,10 +14,7 @@ class CategoryParser {
     Logger logger = Logger(printer:PrettyPrinter());
     List<String> lines = response.body.split('\r\n');
 
-    Reference reference = FirebaseStorage.instance.refFromURL("gs://wewish-b573a.appspot.com/category/category-beauty.csv");
-    final data = await reference.getData();
-
-    if (data != null) {
+    if (response.statusCode == 200) {
       List<List<dynamic>> rowList = const CsvToListConverter().convert(cp949.decodeString(response.body));
       final keys = rowList.first;
       final List<Map> list = rowList.skip(1).map((e) => Map.fromIterables(keys, e)).toList();
@@ -60,24 +56,6 @@ enum Category {
   kitchen,
   kids,
   fashion;
-
-  // List<String> categories = [
-  //   '가구홈데코',
-  //   '가전디지털',
-  //   '도서',
-  //   '문구오피스',
-  //   '반려애완용품',
-  //   '뷰티',
-  //   '생활용품',
-  //   '스포츠레져',
-  //   '식품',
-  //   '완구취미',
-  //   '음반DVD',
-  //   '자동차용품',
-  //   '주방용품',
-  //   '출산유아동',
-  //   '패션의류잡화'
-  // ];
 
   String get label {
     switch (this) {

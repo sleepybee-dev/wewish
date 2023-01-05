@@ -19,6 +19,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case settingsPage:
       return MaterialPageRoute(builder: (context) => const SettingsPage());
     case wishSettingPage:
+      if (settings.arguments != null && settings.arguments is String) {
+        return MaterialPageRoute(builder: (context) => WishSettingPage(url: settings.arguments as String));
+      }
       return MaterialPageRoute(builder: (context) => WishSettingPage());
     default:
       return MaterialPageRoute(builder: (context) => Home());
