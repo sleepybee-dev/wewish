@@ -12,19 +12,27 @@ import 'package:wewish/util/category_parser.dart';
 
 class WishSettingPage extends StatefulWidget {
   // WishItem? wishItem;
+  String? url;
 
-  WishSettingPage({Key? key}) : super(key: key);
+  WishSettingPage({Key? key, this.url}) : super(key: key);
 
   @override
   State<WishSettingPage> createState() => _WishSettingPageState();
 }
 
 class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingObserver{
-  final TextEditingController _nameEditingController = TextEditingController();
   final TextEditingController _urlEditingController = TextEditingController();
+  final TextEditingController _nameEditingController = TextEditingController();
+  final TextEditingController _priceEditingController = TextEditingController();
 
   late RegistryProvider _registryProvider;
   final GlobalKey _scaffoldKey = GlobalKey();
+
+  final CategoryItem _curCategoryItem = CategoryItem();
+  Map<String, List<String>>? _curCategoryMap;
+  String _curProductName = '';
+  int _curPrice = 0;
+
 
   @override
   void didChangeDependencies() {
@@ -37,6 +45,9 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
     super.initState();
     _doCheckClipboard();
     WidgetsBinding.instance.addObserver(this);
+    if (widget.url != null) {
+      _urlEditingController.text = widget.url!;
+    }
   }
 
   @override
@@ -51,25 +62,22 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(appBar: AppBar(title: Text('')), body: _buildBody()));
+        child: Scaffold(appBar: AppBar(title: const Text('')), body: _buildBody()));
   }
-
-  final CategoryItem _curCategoryItem = CategoryItem();
-  Map<String, List<String>>? _curCategoryMap;
 
   Widget _buildBody() {
     return Stack(children: [
       _onLoading
           ? Center(
               child: Container(
-              child: CircularProgressIndicator(),
+              child: const CircularProgressIndicator(),
             ))
           : Container(),
       Column(
         children: [
           Row(
             children: [
-              Text('url'),
+              const Text('url'),
               Expanded(
                   child: TextField(
                 controller: _urlEditingController,
@@ -77,9 +85,15 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
             ],
           ),
           Row(
-            children: [Text('상품명'), Expanded(child: TextField(
+            children: [const Text('상품명'), Expanded(child: TextField(
               controller: _nameEditingController,
 
+            ))],
+          ),
+          Row(
+            children: [const Text('상품가격'), Expanded(child: TextField(
+              keyboardType: const TextInputType.numberWithOptions(),
+              controller: _priceEditingController,
             ))],
           ),
           TextButton(
@@ -226,8 +240,8 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
     WishItem wishItem = WishItem()
       ..createdDate = DateTime.now()
       ..modifiedDate = DateTime.now()
-      ..name = ''
-      ..price = 200
+      ..name = _nameEditingController.text
+      ..price = _priceEditingController.text as int
       ..url = _urlEditingController.text
       ..category = categoryItem;
 
