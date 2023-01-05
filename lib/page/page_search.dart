@@ -93,7 +93,19 @@ class _SearchPageState extends State<SearchPage> {
             radius: 18.0,
           ),
         ),
-        Expanded(child: Text(user.nickname))
+        Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(user.nickname),
+                    Text("("+"id"+")"), // firebase에서 가져올 것
+                  ],
+                ),
+                Text("#해시태그 #테스트") // firebase에서 가져올 것
+              ],
+            ))
       ],
     );
   }
