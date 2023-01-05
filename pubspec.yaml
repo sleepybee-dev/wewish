@@ -49,6 +49,7 @@ dependencies:
   cp949_dart: ^1.0.0+1
 
   csv: ^5.0.1
+  image_picker: ^0.8.6
 
 dev_dependencies:
   flutter_test:
