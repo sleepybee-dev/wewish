@@ -32,7 +32,15 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           Row(
             children: [
+              IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
               Expanded(child: TextField(
+                decoration: InputDecoration(
+                  hintText: '이름을 입력하세요',
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                  ),
+                ),
                 onChanged: (value) {
                   _keyword = value;
                 },
@@ -103,7 +111,14 @@ class _SearchPageState extends State<SearchPage> {
                     Text("("+"id"+")"), // firebase에서 가져올 것
                   ],
                 ),
-                Text("#해시태그 #테스트") // firebase에서 가져올 것
+                Row(
+                  children: [
+                    Text("#"+user.hashTag[0], style: TextStyle(fontSize: 13,)),
+                    Text("#"+user.hashTag[1], style: TextStyle(fontSize: 13,)),
+                    Text("#"+user.hashTag[2], style: TextStyle(fontSize: 13,))
+                  ],
+                ),
+
               ],
             ))
       ],
