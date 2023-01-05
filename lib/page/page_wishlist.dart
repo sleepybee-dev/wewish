@@ -14,6 +14,9 @@ class WishListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+            centerTitle: true,
+            title: Text('위시리스트',)),
         body: Column(
           children: [
             _buildUserProfile(registryItem.user),
