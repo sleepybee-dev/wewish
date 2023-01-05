@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +21,10 @@ void main() async {
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Theme.of(context).primaryColor, // status bar color
-    ));
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
             if (kIsWeb) {
               if (constraints.maxWidth >= 1200) {
                 return _buildThreeColumnHome();
-              // } else if (constraints.maxWidth >= 768) {
-              //   return _buildTwoColumnHome() ;
+                // } else if (constraints.maxWidth >= 768) {
+                //   return _buildTwoColumnHome() ;
               } else {
                 return Home();
               }
@@ -94,6 +94,7 @@ class MyApp extends StatelessWidget {
   }
 
   final _wewishTheme = ThemeData(
+    // colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF90DFF9)),
     primarySwatch: const MaterialColor(0xFF90DFF9, {
       50: Color(0xffe5f4fd),
       100: Color(0xffbee3fa),
