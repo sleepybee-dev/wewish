@@ -55,12 +55,12 @@ class _WishListState extends State<WishList> {
   }
 
   Future<List> getData() async {
-    print('hello');
     var result = await firestore.collection('registry').get();
     result.docs.forEach((e) {
       // registry 내부 문서를 돈다.
       // print(e.data()); // registry 내부 문서 id 순
-      if (e.data().length > 0) {
+      if (e.data()['user']['nickname'] == '홍길동') {
+        // 홍길동 위시리스트만 보여준다.
         e.data().forEach((key, value) {
           if (key == 'wishlist') {
             value.forEach((e) {
