@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:wewish/page/page_settings.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,10 +35,11 @@ class MyStatelessWidget extends StatelessWidget {
             children: <Widget>[
               OutlinedButton(
                 onPressed: () {
-                  //Navigator.push(context, MaterialPageRoute(
-                      //builder: (context){
-                      //}
-                      //));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context)=>EditProfile()),
+                  );
+
                 },
 
                 style: OutlinedButton.styleFrom(
@@ -109,9 +111,11 @@ class EditProfile extends StatefulWidget {
   State<EditProfile> createState() => _EditProfileState();
 }
 
+final storageRef = FirebaseStorage.instance.ref();
+final imagesRef = storageRef.child('profile');
+final spaceRef = storageRef.child('profile/default.jpg');
+
 class _EditProfileState extends State<EditProfile> {
-  PickedFile? _imageFile;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +152,7 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
+
   Widget imageProfile() {
     return Center(
       child: Stack(
@@ -155,7 +160,7 @@ class _EditProfileState extends State<EditProfile> {
           CircleAvatar(
               radius: 80,
               backgroundImage: //이미지파일이 null값일 때
-              AssetImage('assets/profile.jfif') //기본이미지(true)
+              NetworkImage(spaceRef.fullPath) //기본이미지(true)
 //가져온이미지(false)
           ),
           Positioned(
