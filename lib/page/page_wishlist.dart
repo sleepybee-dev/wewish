@@ -28,18 +28,40 @@ class WishListPage extends StatelessWidget {
   }
 
   Widget _buildUserProfile(UserItem user) {
-    return Row(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.amberAccent,
-            backgroundImage: NetworkImage(user.profileUrl),
-            radius: 18.0,
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: CircleAvatar(
+              backgroundColor: Colors.amberAccent,
+              backgroundImage: NetworkImage(user.profileUrl),
+              radius: 18.0,
+            ),
           ),
-        ),
-        Expanded(child: Text(user.nickname))
-      ],
+          Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(user.nickname),
+                      Text("("+"id"+")"), // firebase에서 가져올 것
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text("#"+user.hashTag[0], style: TextStyle(fontSize: 13,)),
+                      Text("#"+user.hashTag[1], style: TextStyle(fontSize: 13,)),
+                      Text("#"+user.hashTag[2], style: TextStyle(fontSize: 13,))
+                    ],
+                  ),
+
+                ],
+              ))
+        ],
+      ),
     );
   }
 
@@ -93,6 +115,21 @@ class WishListPage extends StatelessWidget {
         Text(opengraphData.title, style: TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis,),
         Text(opengraphData.description),
         Text(opengraphData.url, style: TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis,),
+        ButtonBar(
+          alignment: MainAxisAlignment.end,
+          buttonPadding: EdgeInsets.only(left: 20),
+          children: [
+            ElevatedButton(
+              onPressed: () {}, // Navigate 필요
+              child: Text('예약'),
+            ),
+            OutlinedButton(
+              onPressed: () {},
+              child: Text('선물했어요'),
+            ),
+          ],
+        ),
+
       ],
     );
   }
