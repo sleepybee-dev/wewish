@@ -4,6 +4,7 @@ import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/router.dart' as router;
+import 'package:wewish/ui/textfield_search.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -33,19 +34,13 @@ class _SearchPageState extends State<SearchPage> {
           Row(
             children: [
               IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
-              Expanded(child: TextField(
-                decoration: InputDecoration(
-                  hintText: '이름을 입력하세요',
-                  hintStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 15,
-                  ),
-                ),
+              Expanded(child: SearchTextField(
+                hintText: '이름을 입력하세요',
                 onChanged: (value) {
                   _keyword = value;
                 },
+                onPressed: () => _doSearch()
               )),
-              IconButton(onPressed: () => _doSearch(), icon: const Icon(Icons.search))
             ],
           ),
           Expanded(

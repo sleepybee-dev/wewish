@@ -20,7 +20,8 @@ class WishSettingPage extends StatefulWidget {
   State<WishSettingPage> createState() => _WishSettingPageState();
 }
 
-class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingObserver{
+class _WishSettingPageState extends State<WishSettingPage>
+    with WidgetsBindingObserver {
   final TextEditingController _urlEditingController = TextEditingController();
   final TextEditingController _nameEditingController = TextEditingController();
   final TextEditingController _priceEditingController = TextEditingController();
@@ -32,7 +33,6 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
   Map<String, List<String>>? _curCategoryMap;
   String _curProductName = '';
   int _curPrice = 0;
-
 
   @override
   void didChangeDependencies() {
@@ -62,7 +62,8 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(appBar: AppBar(title: const Text('')), body: _buildBody()));
+        child: Scaffold(
+            appBar: AppBar(title: const Text('')), body: _buildBody()));
   }
 
   Widget _buildBody() {
@@ -85,23 +86,36 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
             ],
           ),
           Row(
-            children: [const Text('상품명'), Expanded(child: TextField(
-              controller: _nameEditingController,
-
-            ))],
+            children: [
+              const Text('상품명'),
+              Expanded(
+                  child: TextField(
+                controller: _nameEditingController,
+              ))
+            ],
           ),
           Row(
-            children: [const Text('상품가격'), Expanded(child: TextField(
-              keyboardType: const TextInputType.numberWithOptions(),
-              controller: _priceEditingController,
-            ))],
+            children: [
+              const Text('상품가격'),
+              Expanded(
+                  child: TextField(
+                keyboardType: const TextInputType.numberWithOptions(),
+                controller: _priceEditingController,
+              ))
+            ],
           ),
           TextButton(
-              onPressed: _showCategoryBottomSheet, child: Container(
-            alignment: Alignment.center,
-            width: double.infinity,
-              height: 56,
-              child: Text(_curCategoryItem.category.isEmpty ? '카테고리 선택' : _curCategoryItem.category, style: TextStyle(color: Theme.of(context).primaryColor),))),
+              onPressed: _showCategoryBottomSheet,
+              child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  height: 56,
+                  child: Text(
+                    _curCategoryItem.category.isEmpty
+                        ? '카테고리 선택'
+                        : _curCategoryItem.category,
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ))),
           TextButton(
               onPressed: () => _curCategoryMap != null
                   ? _showCategoryPart1Sheet(_curCategoryMap!)
@@ -109,7 +123,8 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
               child: Text(_curCategoryItem.part1)),
           TextButton(
               onPressed: () => _curCategoryMap != null
-                  ? _showCategoryPart2Sheet(_curCategoryMap![_curCategoryItem.part1])
+                  ? _showCategoryPart2Sheet(
+                      _curCategoryMap![_curCategoryItem.part1])
                   : {},
               child: Text(_curCategoryItem.part2)),
           PrimaryTextButton(onPressed: () => _addWish(), label: '위시 추가')
@@ -160,7 +175,10 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
         await Clipboard.getData(Clipboard.kTextPlain);
     if (clipboardData != null) {
       if (clipboardData.text != null && clipboardData.text!.contains("http")) {
-        return clipboardData.text!;
+        final reg = RegExp(
+            "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#()?&//=]*)");
+        final matchResult = reg.stringMatch(clipboardData.text!);
+        return matchResult;
       }
     }
     return null;
@@ -170,7 +188,11 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       key: _scaffoldKey,
       duration: const Duration(seconds: 5),
-      content: Text(clipboardText, maxLines: 2, overflow: TextOverflow.ellipsis,),
+      content: Text(
+        clipboardText,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
       action: SnackBarAction(
         label: '붙여넣기',
         onPressed: () {
@@ -235,17 +257,24 @@ class _WishSettingPageState extends State<WishSettingPage> with WidgetsBindingOb
   }
 
   _addWish() {
+    setState(() {
+      _onLoading = true;
+    });
     CategoryItem categoryItem = _curCategoryItem;
 
     WishItem wishItem = WishItem()
       ..createdDate = DateTime.now()
       ..modifiedDate = DateTime.now()
       ..name = _nameEditingController.text
-      ..price = _priceEditingController.text as int
+      ..price = int.parse(_priceEditingController.text)
       ..url = _urlEditingController.text
       ..category = categoryItem;
 
     _registryProvider.addRegistry("HcRzmebMekTFo4w9jm2u", wishItem);
+    setState(() {
+      _onLoading = false;
+    });
+    Navigator.pop(context);
   }
 
   @override

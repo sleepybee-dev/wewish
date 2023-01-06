@@ -21,7 +21,7 @@ class RegiRepository {
   Future<void> addRegistry(String userId, WishItem wishItem) async {
     await FirebaseFirestore.instance
         .collection('registry')
-        .where('user.uId', isGreaterThanOrEqualTo: userId)
+        .where('user.uId', isEqualTo: userId)
         .limit(1)
         .get()
         .then((value) {
