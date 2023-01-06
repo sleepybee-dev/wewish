@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
@@ -9,6 +10,7 @@ import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/ui/button_text_primary.dart';
 import 'package:wewish/util/category_parser.dart';
+import 'package:wewish/util/meta_parser.dart';
 
 class WishSettingPage extends StatefulWidget {
   // WishItem? wishItem;
@@ -31,8 +33,8 @@ class _WishSettingPageState extends State<WishSettingPage>
 
   final CategoryItem _curCategoryItem = CategoryItem();
   Map<String, List<String>>? _curCategoryMap;
-  String _curProductName = '';
-  int _curPrice = 0;
+
+  OpengraphData? opengraphData;
 
   @override
   void didChangeDependencies() {
@@ -43,19 +45,25 @@ class _WishSettingPageState extends State<WishSettingPage>
   @override
   void initState() {
     super.initState();
-    _doCheckClipboard();
     WidgetsBinding.instance.addObserver(this);
     if (widget.url != null) {
       _urlEditingController.text = widget.url!;
+      _parseUrl(widget.url!);
+    }
+    if (widget.url == null && _urlEditingController.text.isEmpty) {
+      _doCheckClipboard();
     }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     Logger logger = Logger(printer: PrettyPrinter());
+
     logger.d(state);
     if (state == AppLifecycleState.resumed) {
-      _doCheckClipboard();
+      if (widget.url == null && _urlEditingController.text.isEmpty) {
+        _doCheckClipboard();
+      }
     }
   }
 
@@ -63,6 +71,7 @@ class _WishSettingPageState extends State<WishSettingPage>
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
             appBar: AppBar(title: const Text('')), body: _buildBody()));
   }
 
@@ -76,12 +85,15 @@ class _WishSettingPageState extends State<WishSettingPage>
           : Container(),
       Column(
         children: [
+          _buildOgDataCard(),
           Row(
             children: [
               const Text('url'),
               Expanded(
                   child: TextField(
                 controller: _urlEditingController,
+                    onEditingComplete: ()=>
+                        _parseUrl(_urlEditingController.text),
               ))
             ],
           ),
@@ -270,11 +282,7 @@ class _WishSettingPageState extends State<WishSettingPage>
       ..url = _urlEditingController.text
       ..category = categoryItem;
 
-    _registryProvider.addRegistry("HcRzmebMekTFo4w9jm2u", wishItem);
-    setState(() {
-      _onLoading = false;
-    });
-    Navigator.pop(context);
+    updateRegistry(wishItem);
   }
 
   @override
@@ -289,5 +297,63 @@ class _WishSettingPageState extends State<WishSettingPage>
         _showCopySnackBar(clipboardText);
       }
     });
+  }
+
+  void updateRegistry(WishItem wishItem) {
+    setState(() {
+      _onLoading = true;
+    });
+    FirebaseFirestore.instance
+        .collection('registry')
+        .where('user.uId', isEqualTo: "HcRzmebMekTFo4w9jm2u")
+        .limit(1)
+        .get()
+        .then((value) {
+      value.docs[0].reference.update({
+        'wishlist': FieldValue.arrayUnion([wishItem.toJson()])
+      }).then((value) {
+        setState(() {
+          _onLoading = false;
+        });
+        Navigator.pop(context);
+      }, onError: (e) {
+        setState(() {
+          _onLoading = false;
+        });
+      });
+    }, onError: (e) {
+      setState(() {
+        _onLoading = false;
+      });
+    });
+  }
+
+  void _parseUrl(String url) {
+    MetaParser.getOpenGraphData(url).then((og) {
+      setState(() {
+        opengraphData = og;
+      });
+    });
+  }
+
+  Widget _buildOgDataCard() {
+    return opengraphData == null
+        ? Container(
+            height: 120,
+          )
+        : Row(children: [
+            SizedBox(
+              width: 120,
+                height: 120,
+                child: Image.network(opengraphData!.image)),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          Text(opengraphData!.title),
+          Text(opengraphData!.description)
+        ],),
+      )
+          ]);
   }
 }
