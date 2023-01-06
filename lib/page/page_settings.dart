@@ -16,7 +16,7 @@ class SettingsPage extends StatelessWidget {
       title: _title,
       home: Scaffold(
         appBar: AppBar(title: const Text(_title)),
-        body: const EditProfile(),
+        body: const MyStatelessWidget(),
 
       ),
     );
@@ -159,8 +159,8 @@ class _EditProfileState extends State<EditProfile> {
         children: <Widget>[
           CircleAvatar(
               radius: 80,
-              backgroundImage: //이미지파일이 null값일 때
-              NetworkImage(spaceRef.fullPath) //기본이미지(true)
+              backgroundColor: Colors.transparent,
+              backgroundImage: NetworkImage('https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911'), //기본이미지(true)
 //가져온이미지(false)
           ),
           Positioned(
