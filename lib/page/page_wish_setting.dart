@@ -43,19 +43,24 @@ class _WishSettingPageState extends State<WishSettingPage>
   @override
   void initState() {
     super.initState();
-    _doCheckClipboard();
     WidgetsBinding.instance.addObserver(this);
     if (widget.url != null) {
       _urlEditingController.text = widget.url!;
+    }
+    if (widget.url == null && _urlEditingController.text.isEmpty) {
+      _doCheckClipboard();
     }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     Logger logger = Logger(printer: PrettyPrinter());
+
     logger.d(state);
     if (state == AppLifecycleState.resumed) {
-      _doCheckClipboard();
+      if (widget.url == null && _urlEditingController.text.isEmpty) {
+        _doCheckClipboard();
+      }
     }
   }
 
