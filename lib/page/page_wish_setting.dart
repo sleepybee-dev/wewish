@@ -32,7 +32,7 @@ class _WishSettingPageState extends State<WishSettingPage>
   final GlobalKey _scaffoldKey = GlobalKey();
 
   final CategoryItem _curCategoryItem = CategoryItem();
-  Map<String, List<String>>? _curCategoryMap;
+  Map<String, List<CategorySingle>>? _curCategoryMap;
 
   OpengraphData? opengraphData;
 
@@ -216,8 +216,12 @@ class _WishSettingPageState extends State<WishSettingPage>
     ));
   }
 
-  void _showCategoryPart2Sheet(List<String>? part2List) {
+  void _showCategoryPart2Sheet(List<CategorySingle>? part2List) {
     if (part2List == null || part2List.isEmpty) {
+      return;
+    }
+    if (part2List.length == 1 && part2List[0].categoryPart2.isEmpty) {
+      _curCategoryItem.categoryId = part2List[0].categoryId;
       return;
     }
     showModalBottomSheet(
@@ -230,20 +234,21 @@ class _WishSettingPageState extends State<WishSettingPage>
                   onTap: () {
                     Navigator.pop(context);
                     setState(() {
-                      _curCategoryItem.part2 = part2List[index];
+                      _curCategoryItem.categoryId = part2List[index].categoryId;
+                      _curCategoryItem.part2 = part2List[index].categoryPart2;
                     });
                   },
                   child: Container(
                       alignment: Alignment.centerLeft,
                       width: double.infinity,
                       height: 40,
-                      child: Text(part2List[index])),
+                      child: Text(part2List[index].categoryPart2)),
                 );
               });
         });
   }
 
-  void _showCategoryPart1Sheet(Map<String, List<String>> categoryMap) {
+  void _showCategoryPart1Sheet(Map<String, List<CategorySingle>> categoryMap) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -255,6 +260,8 @@ class _WishSettingPageState extends State<WishSettingPage>
                   onTap: () {
                     setState(() {
                       _curCategoryItem.part1 = keys[index];
+                      _curCategoryItem.part2 = '';
+                      _curCategoryItem.categoryId = -1;
                     });
                     Navigator.pop(context);
                     _showCategoryPart2Sheet(categoryMap[keys[index]]);
