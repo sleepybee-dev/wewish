@@ -7,6 +7,42 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:1069168519679:android:f8ff803ad1c452cbfd5fca",
+        "android_client_info": {
+          "package_name": "com.codeinsongdo.wewish"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069168519679-jokosllp8lev64rl9p8botq01d8n9ro4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH1sfHZ5o1448EtbVu-c7IroStmlyvOGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069168519679-jokosllp8lev64rl9p8botq01d8n9ro4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1069168519679-50pfur68onsjplmoihsstmif4ukua63s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.codeinsongdo.wewish.wewish"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:1069168519679:android:faf61e0bfbe0b50ffd5fca",
         "android_client_info": {
           "package_name": "com.codeinsongdo.wewish.wewish"
@@ -29,6 +65,13 @@
             {
               "client_id": "1069168519679-jokosllp8lev64rl9p8botq01d8n9ro4.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1069168519679-50pfur68onsjplmoihsstmif4ukua63s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.codeinsongdo.wewish.wewish"
+              }
             }
           ]
         }

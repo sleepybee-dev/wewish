@@ -1,4 +1,4 @@
-package com.codeinsongdo.wewish.wewish
+package com.codeinsongdo.wewish
 
 import android.content.Intent
 import android.os.Bundle

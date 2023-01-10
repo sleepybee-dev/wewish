@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.codeinsongdo.wewish.wewish</string>
+	<string>com.codeinsongdo.wewish</string>
 	<key>PROJECT_ID</key>
 	<string>wewish-b573a</string>
 	<key>STORAGE_BUCKET</key>
