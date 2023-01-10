@@ -9,22 +9,41 @@ class WishItem {
   DateTime createdDate = DateTime.now();
   DateTime modifiedDate = DateTime.now();
 
+  bool isBooked = false;
+  bool isChecked = false;
+  bool isReceived = false;
+  String giver = '';
+
   WishItem();
 
   WishItem.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String,
         url = json['url'] as String,
-        category = json['category'] == null ? CategoryItem() : CategoryItem.fromJson(json['category']),
+        category = json['category'] == null
+            ? CategoryItem()
+            : CategoryItem.fromJson(json['category']),
         price = json['price'] as int,
-        createdDate = json['createdDate'] == null ? DateTime.now() : (json['createdDate'] as Timestamp).toDate(),
-        modifiedDate = json['modifiedDate'] == null ? DateTime.now() : (json['modifiedDate'] as Timestamp).toDate();
+        isBooked = json['reservation_status'] as bool,
+        isChecked = json['check_status'] as bool,
+        isReceived = json['gift_status'] as bool,
+        giver = json['giver'] as String,
+        createdDate = json['createdDate'] == null
+            ? DateTime.now()
+            : (json['createdDate'] as Timestamp).toDate(),
+        modifiedDate = json['modifiedDate'] == null
+            ? DateTime.now()
+            : (json['modifiedDate'] as Timestamp).toDate();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'name' : name,
-    'url': url,
-    'category': category.toJson(),
-    'price': price,
-    'createdDate': createdDate,
-    'modifiedDate': modifiedDate
-  };
+        'isBooked': isBooked,
+        'isChecked': isChecked,
+        'isReceived': isReceived,
+        'giver': giver,
+        'name': name,
+        'url': url,
+        'category': category.toJson(),
+        'price': price,
+        'createdDate': createdDate,
+        'modifiedDate': modifiedDate
+      };
 }
