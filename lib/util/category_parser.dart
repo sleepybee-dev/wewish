@@ -5,30 +5,32 @@ import 'package:cp949_dart/cp949_dart.dart' as cp949;
 
 class CategoryParser {
 
-  static Future<Map<String, List<String>>> getCategoryMap(Category category) async {
+  static Future<Map<String, List<CategorySingle>>> getCategoryMap(Category category) async {
     String url = category.url;
     Map<String, String> headers = {
       "responseType": "text/csv",
     };
     http.Response response = await http.get(Uri.parse(url),headers:headers);
     Logger logger = Logger(printer:PrettyPrinter());
-    List<String> lines = response.body.split('\r\n');
 
     if (response.statusCode == 200) {
       List<List<dynamic>> rowList = const CsvToListConverter().convert(cp949.decodeString(response.body));
       final keys = rowList.first;
       final List<Map> list = rowList.skip(1).map((e) => Map.fromIterables(keys, e)).toList();
       List<String> part1List = [];
-      Map<String, List<String>> resultMap = {};
+      Map<String, List<CategorySingle>> resultMap = {};
       for (Map map in list) {
-        String part1 = map['part1'].toString().trim();
-        String part2 = map['part2'].toString().trim();
-        part1List.add(part1);
-        if (part1.isNotEmpty) {
-          if (resultMap[part1] == null) {
-            resultMap[part1] = [part2];
-          } else {
-            resultMap[part1]!.add(part2);
+        if (map['categoryId'].toString().isNotEmpty) {
+          int categoryId = int.parse(map['categoryId'].toString().trim());
+          String part1 = map['part1'].toString().trim();
+          String part2 = map['part2'].toString().trim();
+          part1List.add(part1);
+          if (part1.isNotEmpty) {
+            if (resultMap[part1] == null) {
+              resultMap[part1] = [CategorySingle(categoryId, part2)];
+            } else {
+              resultMap[part1]!.add(CategorySingle(categoryId, part2));
+            }
           }
         }
       }
@@ -38,6 +40,13 @@ class CategoryParser {
       return {};
     }
   }
+}
+
+class CategorySingle {
+  int categoryId = -1;
+  String categoryPart2 = '';
+
+  CategorySingle(this.categoryId, this.categoryPart2);
 }
 
 enum Category {
@@ -99,13 +108,13 @@ enum Category {
      case Category.furniture:
        return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-furniture.csv?alt=media&token=6240b585-0c74-4826-a591-312fd4949179';
       case Category.homeAppliance:
-        return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-homeappliance.csv?alt=media&token=88454ba7-9144-4ed5-82da-435895758caa';
+        return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-homeappliance.csv?alt=media&token=3fd0fc05-d979-4429-873f-27702fff3eb8';
       case Category.book:
         return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-book.csv?alt=media&token=7d1f5c03-07b4-4006-8b83-6c726bce2dde';
       case Category.stationery:
         return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-stationery.csv?alt=media&token=b48e3d91-7118-4e39-ac94-1ccd68619d9b';
       case Category.pet:
-        return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-pet.csv?alt=media&token=68fdbf7d-88cb-4e4f-858c-cd57c4e50ad9';
+        return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-pet.csv?alt=media&token=9bbc2526-744d-4a26-820f-065b4dfc5063';
       case Category.beauty:
         return 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/category%2Fcategory-beauty.csv?alt=media&token=bd6a5888-f2ba-4b7d-bcb9-af70b807ed13';
       case Category.life:
