@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wewish/model/item_registry.dart';
 
 class WishList extends StatefulWidget {
   const WishList({Key? key}) : super(key: key);
@@ -8,70 +9,22 @@ class WishList extends StatefulWidget {
   State<WishList> createState() => _WishListState();
 }
 
-class Test {
-  String img;
-  bool reservation;
-  String giver;
-  String product;
-  num price;
-  bool check;
-  bool gift;
-
-  Test(
-      {required this.img,
-      required this.reservation,
-      required this.giver,
-      required this.check,
-      required this.product,
-      required this.price,
-      required this.gift});
-}
-
 class _WishListState extends State<WishList> {
   final firestore = FirebaseFirestore.instance;
 
-  List<Test> tests = [
-    // Test(
-    //   img: Element.img(),
-    //   giver: "영희",
-    //   product: '아이폰',
-    //   price: 300000,
-    //   reservation: true,
-    //   check: false,
-    //   gift: false,
-    // ),
-  ];
+  Future<RegistryItem> fetchRegistry() async {
+    QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance
+        .collection('registry')
+        .where('user.nickname', isEqualTo: '홍길동')
+        .withConverter<RegistryItem>(
+          fromFirestore: (snapshots, _) =>
+              RegistryItem.fromJson(snapshots.data()!),
+          toFirestore: (registry, _) => registry.toJson(),
+        )
+        .limit(1)
+        .get();
 
-  void setWishList(img, giver, product, price, reservation_status, check_status,
-      gift_status) {
-    tests.add(Test(
-        img: img,
-        reservation: reservation_status,
-        giver: giver,
-        check: check_status,
-        product: product,
-        price: price,
-        gift: gift_status));
-  }
-
-  Future<List> getData() async {
-    var result = await firestore.collection('registry').get();
-    result.docs.forEach((e) {
-      // registry 내부 문서를 돈다.
-      // print(e.data()); // registry 내부 문서 id 순
-      if (e.data()['user']['nickname'] == '홍길동') {
-        // 홍길동 위시리스트만 보여준다.
-        e.data().forEach((key, value) {
-          if (key == 'wishlist') {
-            value.forEach((e) {
-              setWishList(e['url'], e['giver'], e['name'], e['price'],
-                  e['reservation_status'], e['check_status'], e['gift_status']);
-            });
-          }
-        });
-      }
-    });
-    return tests;
+    return snapshot.docs.map((e) => e.data()).toList()[0];
   }
 
   @override
@@ -84,12 +37,14 @@ class _WishListState extends State<WishList> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getData(),
+    return FutureBuilder<RegistryItem>(
+        future: fetchRegistry(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData == false) {
             return Text('loading');
           } else {
+            RegistryItem registryItem = snapshot.data;
+            print(registryItem);
             return SingleChildScrollView(
                 child: Container(
               child: Column(
@@ -113,262 +68,20 @@ class _WishListState extends State<WishList> {
                         )),
                   ),
                   Column(
-                      children: tests.map((i) {
+                      children: registryItem.wishList.map((i) {
                     // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
                     return SizedBox(
                       width: 400,
                       height: 180,
-                      child: i.reservation == true // 예약 상태
-                          ? Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                width: 1,
-                                color: Colors.black,
-                              )),
-                              margin: EdgeInsets.only(top: 30, right: 30),
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                      bottom: 0,
-                                      left: 0,
-                                      child: Container(
-                                          padding: EdgeInsets.only(
-                                              top: 10, right: 5),
-                                          child: Text(
-                                            i.giver + '님이 선물 예약하셨어요.',
-                                            textAlign: TextAlign.right,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          width: 370,
-                                          height: 40,
-                                          color:
-                                              Colors.black.withOpacity(0.5))),
-                                  Positioned(
-                                    top: 10,
-                                    left: 0,
-                                    child: SizedBox(
-                                        width: 150,
-                                        height: 130,
-                                        child: Image.network('${i.img}')),
-                                  ),
-                                  Positioned(
-                                      top: 0,
-                                      right: 30,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            child: Text(
-                                              i.product,
-                                              style: TextStyle(fontSize: 13),
-                                            ),
-                                            margin: EdgeInsets.only(
-                                                left: 40, top: 20),
-                                          ),
-                                          Container(
-                                              child: Text(
-                                                "${i.price}원",
-                                                style: TextStyle(fontSize: 20),
-                                              ),
-                                              margin: EdgeInsets.only(
-                                                  left: 40, top: 30)),
-                                        ],
-                                      )),
-                                ],
-                              ),
-                            )
+                      child: i.isBooked == true // 예약 상태
+                          ? _buildReservationStatusSizebox(i)
                           // 예약 상태가 아님
-                          : i.check == true // 선물 받음 체크 한 상태
-                              ? Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                    width: 1,
-                                    color: Colors.black,
-                                  )),
-                                  margin: EdgeInsets.only(top: 30, right: 30),
-                                  child: Stack(
-                                    children: [
-                                      Positioned(
-                                          bottom: 0,
-                                          left: 0,
-                                          child: Container(
-                                              padding: EdgeInsets.only(
-                                                  top: 170, right: 5),
-                                              child: Text(
-                                                i.giver + '님께 선물을 받았어요.',
-                                                textAlign: TextAlign.right,
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                              width: 370,
-                                              height: 200,
-                                              color: Colors.black
-                                                  .withOpacity(0.5))),
-                                      Positioned(
-                                        top: 10,
-                                        left: 0,
-                                        child: SizedBox(
-                                            width: 150,
-                                            height: 130,
-                                            child: Image.network('${i.img}')),
-                                      ),
-                                      Positioned(
-                                          top: 0,
-                                          right: 30,
-                                          child: Column(
-                                            children: [
-                                              Container(
-                                                child: Text(
-                                                  i.product,
-                                                  style:
-                                                      TextStyle(fontSize: 13),
-                                                ),
-                                                margin: EdgeInsets.only(
-                                                    left: 40, top: 20),
-                                              ),
-                                              Container(
-                                                  child: Text(
-                                                    "${i.price}원",
-                                                    style:
-                                                        TextStyle(fontSize: 20),
-                                                  ),
-                                                  margin: EdgeInsets.only(
-                                                      left: 40, top: 30)),
-                                            ],
-                                          )),
-                                    ],
-                                  ),
-                                )
+                          : i.isChecked == true // 선물 받음 체크 한 상태
+                              ? _buildCheckStatusSizebox(i)
                               // 선물 받음 체크 안한 상태
-                              : i.gift == true
-                                  ? Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                        width: 1,
-                                        color: Colors.black,
-                                      )),
-                                      margin:
-                                          EdgeInsets.only(top: 30, right: 30),
-                                      child: Stack(
-                                        children: [
-                                          Positioned(
-                                              bottom: 0,
-                                              left: 0,
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                      padding: EdgeInsets.only(
-                                                          top: 10, right: 70),
-                                                      child: Text(
-                                                        i.giver + '님이 선물을 보냈어요',
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      width: 370,
-                                                      height: 40,
-                                                      color: Colors.black
-                                                          .withOpacity(0.5)),
-                                                ],
-                                              )),
-                                          Positioned(
-                                              bottom: 5,
-                                              right: 0,
-                                              child: OutlinedButton(
-                                                onPressed: () {},
-                                                child: Text("받음"),
-                                                style: OutlinedButton.styleFrom(
-                                                    primary: Colors.black,
-                                                    shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    0)))),
-                                              )),
-                                          Positioned(
-                                            top: 10,
-                                            left: 0,
-                                            child: SizedBox(
-                                                width: 150,
-                                                height: 130,
-                                                child:
-                                                    Image.network('${i.img}')),
-                                          ),
-                                          Positioned(
-                                              top: 0,
-                                              right: 30,
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    child: Text(
-                                                      i.product,
-                                                      style: TextStyle(
-                                                          fontSize: 13),
-                                                    ),
-                                                    margin: EdgeInsets.only(
-                                                        left: 40, top: 20),
-                                                  ),
-                                                  Container(
-                                                      child: Text(
-                                                        "${i.price}원",
-                                                        style: TextStyle(
-                                                            fontSize: 20),
-                                                      ),
-                                                      margin: EdgeInsets.only(
-                                                          left: 40, top: 30)),
-                                                ],
-                                              )),
-                                        ],
-                                      ),
-                                    )
-                                  : Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                        width: 1,
-                                        color: Colors.black,
-                                      )),
-                                      margin:
-                                          EdgeInsets.only(top: 30, right: 30),
-                                      child: Stack(
-                                        children: [
-                                          Positioned(
-                                            top: 10,
-                                            left: 0,
-                                            child: SizedBox(
-                                                width: 150,
-                                                height: 130,
-                                                child:
-                                                    Image.network('${i.img}')),
-                                          ),
-                                          Positioned(
-                                              top: 0,
-                                              right: 30,
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    child: Text(
-                                                      i.product,
-                                                      style: TextStyle(
-                                                          fontSize: 13),
-                                                    ),
-                                                    margin: EdgeInsets.only(
-                                                        left: 40, top: 20),
-                                                  ),
-                                                  Container(
-                                                      child: Text(
-                                                        "${i.price}원",
-                                                        style: TextStyle(
-                                                            fontSize: 20),
-                                                      ),
-                                                      margin: EdgeInsets.only(
-                                                          left: 40, top: 30)),
-                                                ],
-                                              )),
-                                        ],
-                                      ),
-                                    ),
+                              : i.isReceived == true
+                                  ? _buildBeforeCheckStatusSizebox(i)
+                                  : _buildAnyStatusSizebox(i),
                     );
                   }).toList()),
                 ],
@@ -377,51 +90,142 @@ class _WishListState extends State<WishList> {
           }
         });
   }
+
+  Widget _buildProductImgSizebox(String url) {
+    // 이미지 widget
+    return Positioned(
+      top: 10,
+      left: 0,
+      child: SizedBox(width: 150, height: 130, child: Image.network(url)),
+    );
+  }
+
+  Widget _buildProductInfo(String product_name, num product_price) {
+    // 상품 이름과 가격 widget
+    return Positioned(
+        top: 0,
+        right: 30,
+        child: Column(
+          children: [
+            Container(
+              child: Text(
+                product_name,
+                style: TextStyle(fontSize: 13),
+              ),
+              margin: EdgeInsets.only(left: 40, top: 20),
+            ),
+            Container(
+                child: Text(
+                  "${product_price}원",
+                  style: TextStyle(fontSize: 20),
+                ),
+                margin: EdgeInsets.only(left: 40, top: 30)),
+          ],
+        ));
+  }
+
+  Widget _buildDescribe(String giver, String describe, double _height,
+      double _top, double _right) {
+    return Positioned(
+        bottom: 0,
+        left: 0,
+        child: Container(
+            padding: EdgeInsets.only(top: _top, right: _right),
+            child: Text(
+              giver + describe,
+              textAlign: TextAlign.right,
+              style: TextStyle(color: Colors.white),
+            ),
+            width: 370,
+            height: _height,
+            color: Colors.black.withOpacity(0.5)));
+  }
+
+  // 선물 받음 체크받은 상태
+  Widget _buildCheckStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildDescribe(user_data.giver, '님께 선물을 받았어요.', 200, 170, 5),
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.name, user_data.price),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReservationStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildDescribe(user_data.giver, '님이 선물을 예약하셨어요.', 40, 10, 5),
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.name, user_data.price),
+        ],
+      ),
+    );
+  }
+
+  // 아무 상태 없을 때
+  Widget _buildAnyStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.name, user_data.price),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBeforeCheckStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildDescribe(user_data.giver, '님이 선물을 보냈어요.', 40, 10, 70),
+          Positioned(
+              bottom: 5,
+              right: 0,
+              child: OutlinedButton(
+                onPressed: () {},
+                child: Text("받음"),
+                style: OutlinedButton.styleFrom(
+                    primary: Colors.black,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0)))),
+              )),
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.name, user_data.price),
+        ],
+      ),
+    );
+  }
 }
-
-// class WishList extends StatefulWidget {
-//   const WishList({Key? key}) : super(key: key);
-//
-//   @override
-//   State<WishList> createState() => _WishListState();
-// }
-//
-// class _WishListState extends State<WishList> {
-//   final firestore_data = FirebaseFirestore.instance.collection('registry');
-
-// getData() async {
-//   var result = await firestore.collection('registry').get();
-//   result.docs.forEach((e) {
-//     // registry 내부 문서를 돈다.
-//     // print(e.data()); // registry 내부 문서 id 순
-//     if (e.data().length > 0) {
-//       e.data().forEach((key, value) {
-//         if (key == 'wishlist') {
-//           value.forEach((e) => print(e['name']));
-//         }
-//       });
-//     }
-//   });
-// }
-
-// @override
-// void initState() {
-//   // TODO: implement initState
-//   getData();
-//   super.initState();
-// }
-
-// 차후에는 firebase에서 데이터 받아서 리스트 생성
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return StreamBuilder(stream: firestore_data.snapshots(),
-//         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> streamSnapshot){
-//             if(streamSnapshot.hasData){
-//               print(streamSnapshot)
-//     }
-//           }
-//         },
-//     );
-//   }
-// }
