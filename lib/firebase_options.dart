@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDH1sfHZ5o1448EtbVu-c7IroStmlyvOGU',
-    appId: '1:1069168519679:android:faf61e0bfbe0b50ffd5fca',
+    appId: '1:1069168519679:android:f8ff803ad1c452cbfd5fca',
     messagingSenderId: '1069168519679',
     projectId: 'wewish-b573a',
     storageBucket: 'wewish-b573a.appspot.com',
@@ -66,11 +66,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyC525qVzEbU-VfIIgsh1eNRKX9J3nze0hs',
-    appId: '1:1069168519679:ios:095c16d8ed17591bfd5fca',
+    appId: '1:1069168519679:ios:6df07dc367e4bec9fd5fca',
     messagingSenderId: '1069168519679',
     projectId: 'wewish-b573a',
     storageBucket: 'wewish-b573a.appspot.com',
-    iosClientId: '1069168519679-50pfur68onsjplmoihsstmif4ukua63s.apps.googleusercontent.com',
-    iosBundleId: 'com.codeinsongdo.wewish.wewish',
+    iosClientId: '1069168519679-ealbc2utii3p17lkhgh4npnmg93j60ae.apps.googleusercontent.com',
+    iosBundleId: 'com.codeinsongdo.wewish',
   );
 }

@@ -1,6 +1,8 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wewish/model/item_registry.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WishList extends StatefulWidget {
   const WishList({Key? key}) : super(key: key);
@@ -11,6 +13,7 @@ class WishList extends StatefulWidget {
 
 class _WishListState extends State<WishList> {
   final firestore = FirebaseFirestore.instance;
+  String? curRegistryId;
 
   Future<RegistryItem> fetchRegistry() async {
     QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance
@@ -24,7 +27,11 @@ class _WishListState extends State<WishList> {
         .limit(1)
         .get();
 
-    return snapshot.docs.map((e) => e.data()).toList()[0];
+    curRegistryId = snapshot.docs[0].id;
+    RegistryItem registryItem = snapshot.docs.map((e) => e.data()).toList()[0];
+    registryItem.registryId = curRegistryId;
+
+    return registryItem;
   }
 
   @override
@@ -49,24 +56,7 @@ class _WishListState extends State<WishList> {
                 child: Container(
               child: Column(
                 children: [
-                  Container(
-                    width: 350,
-                    height: 50,
-                    margin: EdgeInsets.only(right: 30),
-                    alignment: Alignment.center,
-                    child: OutlinedButton(
-                        onPressed: () {},
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("메세지와 함께 공유하기"),
-                            Icon(Icons.share),
-                          ],
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          primary: Colors.black,
-                        )),
-                  ),
+                  _buildShareBar(),
                   Column(
                       children: registryItem.wishList.map((i) {
                     // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
@@ -227,5 +217,46 @@ class _WishListState extends State<WishList> {
         ],
       ),
     );
+  }
+
+  Widget _buildShareBar() {
+    return Container(
+      width: 350,
+      height: 50,
+      margin: EdgeInsets.only(right: 30),
+      alignment: Alignment.center,
+      child: OutlinedButton(
+          onPressed: () => doShare(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("메세지와 함께 공유하기"),
+              Icon(Icons.share),
+            ],
+          ),
+          style: OutlinedButton.styleFrom(
+            primary: Colors.black,
+          )),
+    );
+  }
+
+  doShare() {
+    if (curRegistryId == null) {
+      return;
+    }
+
+    final dynamicLinkParams = DynamicLinkParameters(
+      uriPrefix: "https://wewish.page.link/",
+      link: Uri.parse("https://wewish.page.link/wishlist?rId=$curRegistryId"),
+      androidParameters:
+          const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
+      iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
+      socialMetaTagParameters: const SocialMetaTagParameters(
+        title: '홍길동님의 위시리스트'
+      )
+    );
+    FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams).then((value) {
+        canLaunchUrl(value);
+    });
   }
 }
