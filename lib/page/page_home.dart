@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
         Navigator.pushNamed(context, router.wishSettingPage, arguments: value);
       }
     });
+    getDynamicLink();
   }
 
   @override
@@ -71,6 +73,15 @@ class _HomePageState extends State<HomePage> {
 
   goSearchPage() {
     Provider.of<NavigationProvider>(context, listen: false).updateCurrentPage(0);
+  }
+
+  void getDynamicLink() async {
+    final data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final initialLink = data?.link;
+
+    String realIlink = initialLink.toString().replaceAll("%3D", "=");
+    String firstEdit = realIlink.split('/').last;
+
   }
 
 }

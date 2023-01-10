@@ -2,6 +2,7 @@ import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
 
 class RegistryItem {
+  String? registryId;
   UserItem user;
   List<WishItem> wishList = [];
 
