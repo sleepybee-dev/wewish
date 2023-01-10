@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.codeinsongdo.wewish.wewish">
+    package="com.codeinsongdo.wewish">
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
    <application
@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data
-                    android:host="wewish.page.link"
+                    android:host="wewish.com"
                     android:scheme="https"/>
             </intent-filter>
             <!-- 타 앱의 Sharesheet 노출 -->
