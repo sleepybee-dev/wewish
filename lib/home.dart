@@ -1,16 +1,40 @@
+import 'dart:io';
+import 'dart:math';
+
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/page/page_home.dart';
 import 'package:wewish/page/page_my.dart';
 import 'package:wewish/page/page_search.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
+import 'package:wewish/router.dart' as router;
 
-class Home extends StatelessWidget {
-  Home({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
-  late NavigationProvider _navigationProvider;
-  DateTime? _lastBackPressedTime;
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+
+  String METHOD_GET_SHARED_TEXT = "getSharedText";
+  final MethodChannel _channel = const MethodChannel("com.codeinsongdo.wewish/add-wish");
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedText().then((value) {
+      if (value.contains("http")) {
+        Navigator.pushNamed(context, router.wishSettingPage, arguments: value);
+      }
+    });
+    getDynamicLink();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +52,12 @@ class Home extends StatelessWidget {
       ),
     );
   }
+
+
+  late NavigationProvider _navigationProvider;
+  DateTime? _lastBackPressedTime;
+
+
 
   Widget _buildNavBody() {
     switch (_navigationProvider.currentPage) {
@@ -71,9 +101,37 @@ class Home extends StatelessWidget {
     DateTime now = DateTime.now();
     if (_lastBackPressedTime == null || now.difference(_lastBackPressedTime!) > const Duration(seconds: 2)) {
       _lastBackPressedTime = now;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Back 버튼을 한 번 더 누르시면 앱이 종료됩니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Back 버튼을 한 번 더 누르시면 앱이 종료됩니다.'), duration: Duration(seconds: 2),));
       return Future.value(false);
     }
     return Future.value(true);
+  }
+
+  void getDynamicLink() async {
+    Logger logger = Logger(printer: PrettyPrinter());
+
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
+      // String realIlink = initialLink.toString().replaceAll("%3D", "=");
+      logger.d(dynamicLinkData.link);
+      final params = dynamicLinkData.link.queryParameters;
+      final rId = params['rId'];
+    }).onError((error) {
+      // Handle errors
+    });
+
+    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
+    if (initialLink != null) {
+      final Uri deepLink = initialLink.link;
+      // Example of using the dynamic link to push the user to a different screen
+      logger.d(deepLink);
+    }
+  }
+
+  Future<String> getSharedText() async {
+    if (Platform.isIOS) {
+      return "";
+    }
+    final String sharedText = await _channel.invokeMethod(METHOD_GET_SHARED_TEXT);
+    return sharedText;
   }
 }
