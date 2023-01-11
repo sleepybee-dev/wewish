@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:wewish/page/page_settings.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -36,8 +36,8 @@ class MyStatelessWidget extends StatelessWidget {
               OutlinedButton(
                 onPressed: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context)=>EditProfile()),
+                    context,
+                    MaterialPageRoute(builder: (context)=>EditProfile()),
                   );
 
                 },
@@ -88,7 +88,7 @@ class MyStatelessWidget extends StatelessWidget {
               ),
               OutlinedButton(
                 onPressed: () {
-
+                  FirebaseAuth.instance.signOut();
                 },
 
                 style: OutlinedButton.styleFrom(
@@ -116,7 +116,8 @@ final imagesRef = storageRef.child('profile');
 final spaceRef = storageRef.child('profile/default.jpg');
 
 class _EditProfileState extends State<EditProfile> {
-
+  late PickedFile _imageFile;
+  final ImagePicker _picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,9 +159,9 @@ class _EditProfileState extends State<EditProfile> {
       child: Stack(
         children: <Widget>[
           CircleAvatar(
-              radius: 80,
-              backgroundColor: Colors.transparent,
-              backgroundImage: NetworkImage('https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911'), //기본이미지(true)
+            radius: 80,
+            backgroundColor: Colors.transparent,
+            backgroundImage: NetworkImage('https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911'), //기본이미지(true)
 //가져온이미지(false)
           ),
           Positioned(
@@ -168,8 +169,9 @@ class _EditProfileState extends State<EditProfile> {
               right: 20,
               child: InkWell(
                 onTap: () {
-
+                  takePhoto(ImageSource.gallery);
                 },
+
                 child: Icon(
                   Icons.add,
                   color: Colors.black38,
@@ -240,5 +242,14 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
+  takePhoto(ImageSource source) async{
+    final pickedFile = await _picker.pickImage(source: source);
+    setState(() {
+      _imageFile = pickedFile as PickedFile;
+    });
+
+  }
 
 }
+
+
