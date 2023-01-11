@@ -10,17 +10,21 @@ class Home extends StatelessWidget {
   Home({Key? key}) : super(key: key);
 
   late NavigationProvider _navigationProvider;
+  DateTime? _lastBackPressedTime;
 
   @override
   Widget build(BuildContext context) {
     _navigationProvider = Provider.of<NavigationProvider>(context);
     return Scaffold(
       bottomNavigationBar: kIsWeb ? null : _buildBottomNavBar(),
-      body: Column(
-        children: [
-          kIsWeb ? _buildTopNavBar() : Container(),
-          Expanded(child: _buildNavBody()),
-        ],
+      body: WillPopScope(
+        onWillPop: () => _onWillPop(context),
+        child: Column(
+          children: [
+            kIsWeb ? _buildTopNavBar() : Container(),
+            Expanded(child: _buildNavBody()),
+          ],
+        ),
       ),
     );
   }
@@ -61,5 +65,15 @@ class Home extends StatelessWidget {
         _navigationProvider.updateCurrentPage(index);
       },
     );
+  }
+
+  Future<bool> _onWillPop(BuildContext context) {
+    DateTime now = DateTime.now();
+    if (_lastBackPressedTime == null || now.difference(_lastBackPressedTime!) > const Duration(seconds: 2)) {
+      _lastBackPressedTime = now;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Back 버튼을 한 번 더 누르시면 앱이 종료됩니다.')));
+      return Future.value(false);
+    }
+    return Future.value(true);
   }
 }
