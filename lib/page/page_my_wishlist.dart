@@ -1,6 +1,7 @@
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -244,10 +245,9 @@ class _WishListState extends State<WishList> {
     if (curRegistryId == null) {
       return;
     }
-
     final dynamicLinkParams = DynamicLinkParameters(
       uriPrefix: "https://wewish.page.link/",
-      link: Uri.parse("https://wewish.page.link/wishlist?rId=$curRegistryId"),
+      link: Uri.parse("https://wewish.com/wishlist?rId=$curRegistryId"),
       androidParameters:
           const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
       iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
@@ -255,8 +255,14 @@ class _WishListState extends State<WishList> {
         title: '홍길동님의 위시리스트'
       )
     );
-    FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams).then((value) {
-        canLaunchUrl(value);
+    FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams).then((value) {
+      FlutterShare.share(
+        title: '위위시',
+        text: '홍길동님의 선물리스트',
+        linkUrl: value.shortUrl.toString(),
+      );
     });
   }
+
+
 }

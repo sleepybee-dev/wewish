@@ -41,15 +41,17 @@ dependencies:
   firebase_crashlytics: ^3.0.7
   firebase_auth: ^4.2.1
   firebase_dynamic_links: ^5.0.11
+  firebase_storage: ^11.0.9
 
   http: ^0.13.5
   html: ^0.15.1
   url_launcher: ^6.1.7
-  firebase_storage: ^11.0.9
   cp949_dart: ^1.0.0+1
 
   csv: ^5.0.1
   image_picker: ^0.8.6
+
+  flutter_share: ^2.0.0
 
 dev_dependencies:
   flutter_test:
