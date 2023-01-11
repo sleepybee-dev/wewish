@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/page/page_home.dart';
 import 'package:wewish/page/page_my.dart';
+import 'package:wewish/page/page_mypage.dart';
 import 'package:wewish/page/page_search.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
 import 'package:wewish/router.dart' as router;
@@ -21,9 +22,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   String METHOD_GET_SHARED_TEXT = "getSharedText";
-  final MethodChannel _channel = const MethodChannel("com.codeinsongdo.wewish/add-wish");
+  final MethodChannel _channel =
+      const MethodChannel("com.codeinsongdo.wewish/add-wish");
 
   @override
   void initState() {
@@ -53,11 +54,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-
   late NavigationProvider _navigationProvider;
   DateTime? _lastBackPressedTime;
-
-
 
   Widget _buildNavBody() {
     switch (_navigationProvider.currentPage) {
@@ -66,7 +64,7 @@ class _HomeState extends State<Home> {
       case 1:
         return const HomePage();
       case 2:
-        return const MyPage();
+        return const MyPageTemp();
     }
     return Container();
   }
@@ -74,11 +72,29 @@ class _HomeState extends State<Home> {
   Widget _buildTopNavBar() {
     return Row(
       children: [
-        Text('We Wish', style: TextStyle(fontSize: 32),),
+        Text(
+          'We Wish',
+          style: TextStyle(fontSize: 32),
+        ),
         Expanded(child: Container()),
-        IconButton(icon: Icon(Icons.search), onPressed: () => _navigationProvider.updateCurrentPage(0), color: _navigationProvider.currentPage == 0 ? Colors.red : Colors.black,),
-        IconButton(icon: Icon(Icons.home), onPressed: () => _navigationProvider.updateCurrentPage(1), color: _navigationProvider.currentPage == 1 ? Colors.red : Colors.black,),
-        IconButton(icon: Icon(Icons.person), onPressed: () => _navigationProvider.updateCurrentPage(2), color: _navigationProvider.currentPage == 2 ? Colors.red : Colors.black,),
+        IconButton(
+          icon: Icon(Icons.search),
+          onPressed: () => _navigationProvider.updateCurrentPage(0),
+          color:
+              _navigationProvider.currentPage == 0 ? Colors.red : Colors.black,
+        ),
+        IconButton(
+          icon: Icon(Icons.home),
+          onPressed: () => _navigationProvider.updateCurrentPage(1),
+          color:
+              _navigationProvider.currentPage == 1 ? Colors.red : Colors.black,
+        ),
+        IconButton(
+          icon: Icon(Icons.person),
+          onPressed: () => _navigationProvider.updateCurrentPage(2),
+          color:
+              _navigationProvider.currentPage == 2 ? Colors.red : Colors.black,
+        ),
       ],
     );
   }
@@ -86,9 +102,11 @@ class _HomeState extends State<Home> {
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
       items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search'),
+        const BottomNavigationBarItem(
+            icon: Icon(Icons.search), label: 'search'),
         const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-        const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'mypage'),
+        const BottomNavigationBarItem(
+            icon: Icon(Icons.person), label: 'mypage'),
       ],
       currentIndex: _navigationProvider.currentPage,
       onTap: (index) {
@@ -99,9 +117,13 @@ class _HomeState extends State<Home> {
 
   Future<bool> _onWillPop(BuildContext context) {
     DateTime now = DateTime.now();
-    if (_lastBackPressedTime == null || now.difference(_lastBackPressedTime!) > const Duration(seconds: 2)) {
+    if (_lastBackPressedTime == null ||
+        now.difference(_lastBackPressedTime!) > const Duration(seconds: 2)) {
       _lastBackPressedTime = now;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Back 버튼을 한 번 더 누르시면 앱이 종료됩니다.'), duration: Duration(seconds: 2),));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Back 버튼을 한 번 더 누르시면 앱이 종료됩니다.'),
+        duration: Duration(seconds: 2),
+      ));
       return Future.value(false);
     }
     return Future.value(true);
@@ -119,7 +141,8 @@ class _HomeState extends State<Home> {
       // Handle errors
     });
 
-    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
+    final PendingDynamicLinkData? initialLink =
+        await FirebaseDynamicLinks.instance.getInitialLink();
     if (initialLink != null) {
       final Uri deepLink = initialLink.link;
       // Example of using the dynamic link to push the user to a different screen
@@ -131,7 +154,8 @@ class _HomeState extends State<Home> {
     if (Platform.isIOS) {
       return "";
     }
-    final String sharedText = await _channel.invokeMethod(METHOD_GET_SHARED_TEXT);
+    final String sharedText =
+        await _channel.invokeMethod(METHOD_GET_SHARED_TEXT);
     return sharedText;
   }
 }
