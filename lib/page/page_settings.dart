@@ -1,9 +1,10 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:wewish/page/page_settings.dart';
+import 'package:wewish/home.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
-
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -17,10 +18,8 @@ class SettingsPage extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text(_title)),
         body: const MyStatelessWidget(),
-
       ),
     );
-
   }
 }
 
@@ -30,80 +29,67 @@ class MyStatelessWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context)=>EditProfile()),
-                  );
-
-                },
-
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-                  // side: BorderSide(color: Colors.black87, width: 2.0)
-                ),
-                child: const Text('프로필 수정'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-                },
-
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-                  // side: BorderSide(color: Colors.black87, width: 2.0)
-                ),
-                child: const Text('알림 설정'),
-
-              ),
-
-              OutlinedButton(
-                onPressed: () {
-
-                },
-
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-                  // side: BorderSide(color: Colors.black87, width: 2.0)
-                ),
-                child: const Text('개인정보 처리 방침'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-
-                },
-
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-                  // side: BorderSide(color: Colors.black87, width: 2.0)
-                ),
-                child: const Text('회원 탈퇴'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-
-                },
-
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-                  // side: BorderSide(color: Colors.black87, width: 2.0)
-                ),
-                child: const Text('로그아웃'),
-              ),
-
-            ]
-        )
-    );
+        child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      OutlinedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditProfile()),
+          );
+        },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black,
+          minimumSize: const Size(double.infinity, 50), //버튼크기 지정
+          // side: BorderSide(color: Colors.black87, width: 2.0)
+        ),
+        child: const Text('프로필 수정'),
+      ),
+      OutlinedButton(
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black,
+          minimumSize: const Size(double.infinity, 50), //버튼크기 지정
+          // side: BorderSide(color: Colors.black87, width: 2.0)
+        ),
+        child: const Text('알림 설정'),
+      ),
+      OutlinedButton(
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black,
+          minimumSize: const Size(double.infinity, 50), //버튼크기 지정
+          // side: BorderSide(color: Colors.black87, width: 2.0)
+        ),
+        child: const Text('개인정보 처리 방침'),
+      ),
+      OutlinedButton(
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black,
+          minimumSize: const Size(double.infinity, 50), //버튼크기 지정
+          // side: BorderSide(color: Colors.black87, width: 2.0)
+        ),
+        child: const Text('회원 탈퇴'),
+      ),
+      OutlinedButton(
+        onPressed: () {
+          FirebaseAuth.instance.signOut();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Home()),
+          );
+        },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black,
+          minimumSize: const Size(double.infinity, 50), //버튼크기 지정
+          // side: BorderSide(color: Colors.black87, width: 2.0)
+        ),
+        child: const Text('로그아웃'),
+      ),
+    ]));
   }
 }
+
 class EditProfile extends StatefulWidget {
   const EditProfile({Key? key}) : super(key: key);
 
@@ -116,7 +102,6 @@ final imagesRef = storageRef.child('profile');
 final spaceRef = storageRef.child('profile/default.jpg');
 
 class _EditProfileState extends State<EditProfile> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,44 +124,34 @@ class _EditProfileState extends State<EditProfile> {
                   },
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(400, 50)),
-
                   child: Text("변경 사항 저장"),
                 )
-
-
               ],
-
-
-            )
-        )
-    );
+            )));
   }
-
 
   Widget imageProfile() {
     return Center(
       child: Stack(
         children: <Widget>[
           CircleAvatar(
-              radius: 80,
-              backgroundColor: Colors.transparent,
-              backgroundImage: NetworkImage('https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911'), //기본이미지(true)
+            radius: 80,
+            backgroundColor: Colors.transparent,
+            backgroundImage: NetworkImage(
+                'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911'), //기본이미지(true)
 //가져온이미지(false)
           ),
           Positioned(
               bottom: 20,
               right: 20,
               child: InkWell(
-                onTap: () {
-
-                },
+                onTap: () {},
                 child: Icon(
                   Icons.add,
                   color: Colors.black38,
                   size: 40,
                 ),
-              )
-          )
+              ))
         ],
       ),
     );
@@ -235,10 +210,7 @@ class _EditProfileState extends State<EditProfile> {
             ),
           ),
           labelText: '해시태그',
-          hintText: '상태메세지를 입력해주세요.'
-      ),
+          hintText: '상태메세지를 입력해주세요.'),
     );
   }
-
-
 }
