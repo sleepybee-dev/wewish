@@ -1,6 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wewish/page/page_settings.dart';
+
+
 
 class MypageLogin extends StatelessWidget {
   const MypageLogin({Key? key}) : super(key: key);
@@ -12,7 +16,7 @@ class MypageLogin extends StatelessWidget {
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -29,9 +33,21 @@ class MypageLogin extends StatelessWidget {
     return Center(
       child: Column(
         children: [
+          Container(
+            alignment: Alignment.topRight,
+            child: TextButton(onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            }, child: Text('설정')),
+
+
+          ),
           SizedBox(height: 100),
           Column(
             children: [
+
               Text('로그인하여',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
               Text('나만의 위시리스트를',
@@ -42,8 +58,10 @@ class MypageLogin extends StatelessWidget {
           ),
           SizedBox(height: 50),
           Container(height: 180, child: Text('photo')),
+
           Column(
             children: [
+
               Container(
                 width: 220,
                 child: OutlinedButton(
@@ -83,10 +101,13 @@ class MypageLogin extends StatelessWidget {
                       backgroundColor: Color(0xffffffff)),
                 ),
               ),
+
             ],
           ),
         ],
       ),
+
     );
   }
+
 }
