@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/page/page_home.dart';
 import 'package:wewish/page/page_my.dart';
 import 'package:wewish/page/page_mypage.dart';
@@ -26,6 +28,8 @@ class _HomeState extends State<Home> {
   final MethodChannel _channel =
       const MethodChannel("com.codeinsongdo.wewish/add-wish");
 
+  bool _onLoadingDynamicLinkData = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,14 +47,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       bottomNavigationBar: kIsWeb ? null : _buildBottomNavBar(),
       body: WillPopScope(
-        onWillPop: () => _onWillPop(context),
-        child: Column(
-          children: [
-            kIsWeb ? _buildTopNavBar() : Container(),
-            Expanded(child: _buildNavBody()),
-          ],
-        ),
-      ),
+          onWillPop: () => _onWillPop(context), child: _onLoadingDynamicLinkData ? _buildProgressCircle() : _buildBody()),
     );
   }
 
@@ -137,8 +134,27 @@ class _HomeState extends State<Home> {
       logger.d(dynamicLinkData.link);
       final params = dynamicLinkData.link.queryParameters;
       final rId = params['rId'];
+      setState(() {
+        _onLoadingDynamicLinkData = true;
+      });
+      if (rId != null) {
+        _fetchRegistryByRId(rId).then((registryItem) {
+          setState(() {
+            _onLoadingDynamicLinkData = false;
+          });
+          if (registryItem != null) {
+            _goWishListPage(registryItem);
+          }
+        });
+      } else {
+        setState(() {
+          _onLoadingDynamicLinkData = false;
+        });
+      }
     }).onError((error) {
-      // Handle errors
+      setState(() {
+        _onLoadingDynamicLinkData = false;
+      });
     });
 
     final PendingDynamicLinkData? initialLink =
@@ -157,5 +173,36 @@ class _HomeState extends State<Home> {
     final String sharedText =
         await _channel.invokeMethod(METHOD_GET_SHARED_TEXT);
     return sharedText;
+  }
+
+  Widget _buildBody() {
+    return Column(
+      children: [
+        kIsWeb ? _buildTopNavBar() : Container(),
+        Expanded(child: _buildNavBody()),
+      ],
+    );
+  }
+
+  Future<RegistryItem?> _fetchRegistryByRId(String rId) async {
+    DocumentSnapshot<RegistryItem> snapshot = await FirebaseFirestore.instance
+        .collection('registry')
+        .withConverter<RegistryItem>(
+          fromFirestore: (snapshots, _) =>
+              RegistryItem.fromJson(snapshots.data()!),
+          toFirestore: (registry, _) => registry.toJson(),
+        )
+        .doc(rId)
+        .get();
+
+    return snapshot.data();
+  }
+
+  void _goWishListPage(RegistryItem registryItem) {
+    Navigator.pushNamed(context, router.wishlistPage, arguments: registryItem);
+  }
+
+  Widget _buildProgressCircle() {
+    return Center(child: CircularProgressIndicator(),);
   }
 }
