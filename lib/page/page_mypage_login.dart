@@ -1,32 +1,42 @@
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sign_in_button/sign_in_button.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:wewish/model/item_user.dart';
 import 'package:wewish/page/page_settings.dart';
 
+import 'package:wewish/router.dart' as router;
 
-
-class MypageLogin extends StatelessWidget {
+class MypageLogin extends StatefulWidget {
   const MypageLogin({Key? key}) : super(key: key);
 
-  Future<UserCredential> signInWithGoogle() async {
-    // 구글 로그인
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  @override
+  State<MypageLogin> createState() => _MypageLoginState();
+}
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-    await googleUser?.authentication;
+class _MypageLoginState extends State<MypageLogin> {
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+  // Future<UserCredential> signInWithGoogle() async {
+  // 구글 로그인
+  // Trigger the authentication flow
+  // final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //
+  // // Obtain the auth details from the request
+  // final GoogleSignInAuthentication? googleAuth =
+  // await googleUser?.authentication;
+  //
+  // // Create a new credential
+  // final credential = GoogleAuthProvider.credential(
+  //   accessToken: googleAuth?.accessToken,
+  //   idToken: googleAuth?.idToken,
+  // );
 
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
+  // Once signed in, return the UserCredential
+  // return await FirebaseAuth.instance.signInWithCredential(credential);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +51,6 @@ class MypageLogin extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
             }, child: Text('설정')),
-
-
           ),
           SizedBox(height: 100),
           Column(
@@ -91,7 +99,7 @@ class MypageLogin extends StatelessWidget {
               Container(
                 width: 220,
                 child: OutlinedButton(
-                  onPressed: signInWithGoogle,
+                  onPressed: () {},
                   child: Text(
                     '구글 로그인',
                     style: TextStyle(
@@ -101,13 +109,37 @@ class MypageLogin extends StatelessWidget {
                       backgroundColor: Color(0xffffffff)),
                 ),
               ),
-
+              Platform.isIOS ? _buildAppleLoginButton() : Container()
             ],
           ),
         ],
       ),
 
     );
+  }
+
+  Widget _buildAppleLoginButton() {
+    return SignInButton(
+      Buttons.apple,
+      text: 'Sign up with Apple',
+      onPressed: signInWithApple,
+    );
+  }
+
+  Future<UserCredential> signInWithApple() async {
+    final appleCredential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    );
+
+    final oauthCredential = OAuthProvider("apple.com").credential(
+      idToken: appleCredential.identityToken,
+      accessToken: appleCredential.authorizationCode,
+    );
+
+    return await FirebaseAuth.instance.signInWithCredential(oauthCredential);
   }
 
 }

@@ -1,21 +1,25 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wewish/model/item_user.dart';
 import 'package:wewish/page/page_my_givelist.dart';
 import 'package:wewish/page/page_my_wishlist.dart';
 import 'package:wewish/router.dart' as router;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyPage extends StatefulWidget {
-  const MyPage({Key? key}) : super(key: key);
+  User? user;
+
+  MyPage({Key? key, this.user}) : super(key: key);
 
   @override
   State<MyPage> createState() => _MyPageState();
 }
 
-class User {
+class UserTemp {
   String profileUrl;
   String nickname;
 
-  User({
+  UserTemp({
     required this.profileUrl,
     required this.nickname,
   });
@@ -26,15 +30,16 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   final firestore = FirebaseFirestore.instance;
 
-  List<User> user_datas = [
+  List<UserTemp> user_datas = [
     // User(profileUrl: profileUrl, nickname: nickname, hashtag: hashtag)
   ];
   List user_hashtag = [];
 
   void setUser(profileUrl, nickname) {
-    user_datas.add(User(profileUrl: profileUrl, nickname: nickname));
+    user_datas.add(UserTemp(profileUrl: profileUrl, nickname: nickname));
   }
 
+  // TODO widget.user의 uid를 가지고 user와 registry 가져오기
   Future<List> getUser() async {
     var result = await firestore.collection('registry').get();
     result.docs.forEach((e) {
@@ -67,6 +72,22 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
+    if (widget.user != null) {
+      final loginUser = widget.user!;
+      // 파이어스토어에 저장된 user가 있는지 확인
+      _fetchFirebaseUserByUId(loginUser.uid).then((userItem) {
+        if (userItem == null) {
+          // 없으면 프로필 세팅으로
+          UserItem newUser = UserItem()
+            ..uId = loginUser.uid
+            ..nickname = loginUser.displayName ?? ''
+            ..joinDate = DateTime.now()
+            ..lastVisitDate = DateTime.now()
+            ..email = loginUser.email ?? '';
+          _goProfileSettingPage(newUser);
+        }
+      });
+    }
     super.initState();
   }
 
@@ -170,10 +191,34 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   }
 
   _goAddPage() {
-    Navigator.pushNamed(context, router.wishSettingPage);
+    Navigator.pushNamed(context, router.wishEditPage);
   }
 
   void _goSettingPage() {
     Navigator.pushNamed(context, router.settingsPage);
   }
+
+  Future<UserItem?> _fetchFirebaseUserByUId(String uId) async {
+    QuerySnapshot<UserItem> snapshot = await FirebaseFirestore.instance
+        .collection('user').where('uId', isEqualTo: uId)
+        .withConverter<UserItem>(
+      fromFirestore: (snapshots, _) =>
+          UserItem.fromJson(snapshots.data()!),
+      toFirestore: (user, _) => user.toJson(),
+    ).get();
+    if (snapshot.docs.isEmpty) {
+      return null;
+    } else {
+      return snapshot.docs[0].data();
+    }
+  }
+
+  void _goProfileSettingPage(UserItem userItem) {
+    Navigator.pushNamed(context, router.profileEditPage, arguments: userItem).then((value) {
+      setState(() {
+
+      });
+    });
+  }
+
 }

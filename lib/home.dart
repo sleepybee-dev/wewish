@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
@@ -35,7 +33,7 @@ class _HomeState extends State<Home> {
     super.initState();
     getSharedText().then((value) {
       if (value.contains("http")) {
-        Navigator.pushNamed(context, router.wishSettingPage, arguments: value);
+        Navigator.pushNamed(context, router.wishEditPage, arguments: value);
       }
     });
     getDynamicLink();

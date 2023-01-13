@@ -2,9 +2,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:textfield_tags/textfield_tags.dart';
+import 'package:wewish/model/item_user.dart';
 
 class EditProfile extends StatefulWidget {
-  const EditProfile({Key? key}) : super(key: key);
+  UserItem? userItem;
+
+  EditProfile({Key? key, this.userItem}) : super(key: key);
 
   @override
   State<EditProfile> createState() => _EditProfileState();

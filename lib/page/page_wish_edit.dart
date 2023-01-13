@@ -12,17 +12,17 @@ import 'package:wewish/ui/button_text_primary.dart';
 import 'package:wewish/util/category_parser.dart';
 import 'package:wewish/util/meta_parser.dart';
 
-class WishSettingPage extends StatefulWidget {
+class WishEditPage extends StatefulWidget {
   // WishItem? wishItem;
   String? url;
 
-  WishSettingPage({Key? key, this.url}) : super(key: key);
+  WishEditPage({Key? key, this.url}) : super(key: key);
 
   @override
-  State<WishSettingPage> createState() => _WishSettingPageState();
+  State<WishEditPage> createState() => _WishEditPageState();
 }
 
-class _WishSettingPageState extends State<WishSettingPage>
+class _WishEditPageState extends State<WishEditPage>
     with WidgetsBindingObserver {
   final TextEditingController _urlEditingController = TextEditingController();
   final TextEditingController _nameEditingController = TextEditingController();
