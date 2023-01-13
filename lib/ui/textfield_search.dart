@@ -7,15 +7,17 @@ class SearchTextField extends StatelessWidget {
   VoidCallback? onPressed;
 
   bool? enabled;
+  bool autofocus = false;
   String? hintText;
 
-  SearchTextField({Key? key, required this.onPressed, this.controller, this.onChanged, this.hintText, this.enabled}) : super(key: key);
+  SearchTextField({Key? key, required this.onPressed, this.controller, this.onChanged, this.hintText, this.enabled, this.autofocus=false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(child: TextField(
+          autofocus: autofocus,
           enabled: enabled,
           decoration: InputDecoration(
             hintText: hintText,

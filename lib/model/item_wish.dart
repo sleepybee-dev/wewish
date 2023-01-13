@@ -35,9 +35,9 @@ class WishItem {
             : (json['modifiedDate'] as Timestamp).toDate();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'isBooked': isBooked,
-        'isChecked': isChecked,
-        'isReceived': isReceived,
+        'reservation_status': isBooked,
+        'check_status': isChecked,
+        'gift_status': isReceived,
         'giver': giver,
         'name': name,
         'url': url,

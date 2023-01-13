@@ -35,7 +35,8 @@ class _SearchPageState extends State<SearchPage> {
             children: [
               IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
               Expanded(child: SearchTextField(
-                hintText: '이름을 입력하세요',
+                  autofocus: true,
+                  hintText: '이름을 입력하세요',
                 onChanged: (value) {
                   _keyword = value;
                 },
