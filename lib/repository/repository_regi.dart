@@ -15,7 +15,12 @@ class RegiRepository {
         .limit(20)
         .get();
 
-    return snapshot.docs.map((e) => e.data()).toList();
+    return snapshot.docs.map((e) {
+      RegistryItem registryItem = e.data();
+      registryItem.registryId = e.id;
+      return registryItem;
+    }).toList();
+
   }
 
   Future<void> addRegistry(String userId, WishItem wishItem) async {

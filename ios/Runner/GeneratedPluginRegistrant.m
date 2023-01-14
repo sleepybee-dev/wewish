@@ -42,24 +42,30 @@
 @import firebase_storage;
 #endif
 
+<<<<<<< HEAD
 #if __has_include(<flutter_share/FlutterSharePlugin.h>)
 #import <flutter_share/FlutterSharePlugin.h>
 #else
 @import flutter_share;
 #endif
 
+=======
+>>>>>>> jinyoung
 #if __has_include(<image_picker_ios/FLTImagePickerPlugin.h>)
 #import <image_picker_ios/FLTImagePickerPlugin.h>
 #else
 @import image_picker_ios;
 #endif
 
+<<<<<<< HEAD
 #if __has_include(<sign_in_with_apple/SignInWithApplePlugin.h>)
 #import <sign_in_with_apple/SignInWithApplePlugin.h>
 #else
 @import sign_in_with_apple;
 #endif
 
+=======
+>>>>>>> jinyoung
 #if __has_include(<url_launcher_ios/FLTURLLauncherPlugin.h>)
 #import <url_launcher_ios/FLTURLLauncherPlugin.h>
 #else
@@ -75,9 +81,13 @@
   [FLTFirebaseCrashlyticsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCrashlyticsPlugin"]];
   [FLTFirebaseDynamicLinksPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseDynamicLinksPlugin"]];
   [FLTFirebaseStoragePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseStoragePlugin"]];
+<<<<<<< HEAD
   [FlutterSharePlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterSharePlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [SignInWithApplePlugin registerWithRegistrar:[registry registrarForPlugin:@"SignInWithApplePlugin"]];
+=======
+  [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
+>>>>>>> jinyoung
   [FLTURLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTURLLauncherPlugin"]];
 }
 

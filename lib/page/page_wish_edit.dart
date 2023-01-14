@@ -284,7 +284,7 @@ class _WishEditPageState extends State<WishEditPage>
     WishItem wishItem = WishItem()
       ..createdDate = DateTime.now()
       ..modifiedDate = DateTime.now()
-      ..name = _nameEditingController.text
+      ..productName = _nameEditingController.text
       ..price = int.parse(_priceEditingController.text)
       ..url = _urlEditingController.text
       ..category = categoryItem;
