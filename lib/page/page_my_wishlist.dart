@@ -146,7 +146,7 @@ class _WishListState extends State<WishList> {
           _buildDescribe(user_data.giver, '님께 선물을 받았어요.', 200, 170, 5),
           _buildProductImgSizebox(
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
-          _buildProductInfo(user_data.name, user_data.price),
+          _buildProductInfo(user_data.productName, user_data.price),
         ],
       ),
     );
@@ -165,7 +165,7 @@ class _WishListState extends State<WishList> {
           _buildDescribe(user_data.giver, '님이 선물을 예약하셨어요.', 40, 10, 5),
           _buildProductImgSizebox(
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
-          _buildProductInfo(user_data.name, user_data.price),
+          _buildProductInfo(user_data.productName, user_data.price),
         ],
       ),
     );
@@ -184,7 +184,7 @@ class _WishListState extends State<WishList> {
         children: [
           _buildProductImgSizebox(
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
-          _buildProductInfo(user_data.name, user_data.price),
+          _buildProductInfo(user_data.productName, user_data.price),
         ],
       ),
     );
@@ -214,7 +214,7 @@ class _WishListState extends State<WishList> {
               )),
           _buildProductImgSizebox(
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
-          _buildProductInfo(user_data.name, user_data.price),
+          _buildProductInfo(user_data.productName, user_data.price),
         ],
       ),
     );

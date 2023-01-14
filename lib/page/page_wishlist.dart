@@ -126,7 +126,7 @@ class _WishListPageState extends State<WishListPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      Expanded(child: Text(wishItem.name)),
+                      Expanded(child: Text(wishItem.productName)),
                       Text(wishItem.price.toString(), style: TextStyle(fontWeight: FontWeight.bold),)
                     ],
                   ),

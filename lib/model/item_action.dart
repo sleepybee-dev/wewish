@@ -1,7 +1,10 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wewish/model/item_category.dart';
+import 'package:wewish/model/item_user.dart';
 
-class WishItem {
+class ActionItem {
+  UserItem wishUser = UserItem();
   String productName = '';
   String url = '';
   CategoryItem category = CategoryItem();
@@ -12,12 +15,12 @@ class WishItem {
   bool isBooked = false;
   bool isChecked = false;
   bool isReceived = false;
-  String giver = '';
 
-  WishItem();
+  ActionItem();
 
-  WishItem.fromJson(Map<String, dynamic> json)
-      : productName = json['name'] as String,
+  ActionItem.fromJson(Map<String, dynamic> json)
+      : wishUser = json['wishUser'] as UserItem,
+        productName = json['name'] as String,
         url = json['url'] as String,
         category = json['category'] == null
             ? CategoryItem()
@@ -26,7 +29,6 @@ class WishItem {
         isBooked = json['reservation_status'] as bool,
         isChecked = json['check_status'] as bool,
         isReceived = json['gift_status'] as bool,
-        giver = json['giver'] as String,
         createdDate = json['createdDate'] == null
             ? DateTime.now()
             : (json['createdDate'] as Timestamp).toDate(),
@@ -35,15 +37,15 @@ class WishItem {
             : (json['modifiedDate'] as Timestamp).toDate();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'reservation_status': isBooked,
-        'check_status': isChecked,
-        'gift_status': isReceived,
-        'giver': giver,
-        'name': productName,
-        'url': url,
-        'category': category.toJson(),
-        'price': price,
-        'createdDate': createdDate,
-        'modifiedDate': modifiedDate
-      };
+    'wish_user': wishUser.toJson(),
+    'reservation_status': isBooked,
+    'check_status': isChecked,
+    'gift_status': isReceived,
+    'name': productName,
+    'url': url,
+    'category': category.toJson(),
+    'price': price,
+    'createdDate': createdDate,
+    'modifiedDate': modifiedDate
+  };
 }
