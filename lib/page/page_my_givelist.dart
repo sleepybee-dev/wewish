@@ -1,4 +1,9 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:wewish/model/item_registry.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GiveList extends StatefulWidget {
   const GiveList({Key? key}) : super(key: key);
@@ -7,299 +12,249 @@ class GiveList extends StatefulWidget {
   State<GiveList> createState() => _GiveListState();
 }
 
-class Test {
-  FlutterLogo img;
-  bool reservation;
-  String receiver;
-  String product;
-  num price;
-  bool check;
-
-  Test({
-    required this.img,
-    required this.reservation,
-    required this.receiver,
-    required this.check,
-    required this.product,
-    required this.price,
-  });
-}
-
 class _GiveListState extends State<GiveList> {
-  final List<Test> tests = [
-    Test(
-      img: FlutterLogo(),
-      receiver: "영희",
-      product: '아이폰',
-      price: 300000,
-      reservation: true,
-      check: false,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "소희",
-      product: '에어팟',
-      price: 130000,
-      reservation: false,
-      check: true,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "현진",
-      product: '지갑',
-      price: 250000,
-      reservation: true,
-      check: false,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "준호",
-      product: '세탁기',
-      price: 700000,
-      reservation: true,
-      check: false,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "철수",
-      product: '애플펜슬',
-      price: 11000,
-      reservation: false,
-      check: false,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "둘리",
-      product: '노래방 마이크',
-      price: 50000,
-      reservation: true,
-      check: true,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "나나",
-      product: '유모차',
-      price: 650000,
-      reservation: false,
-      check: true,
-    ),
-    Test(
-      img: FlutterLogo(),
-      receiver: "또치",
-      product: '가방',
-      price: 500000,
-      reservation: true,
-      check: true,
-    ),
-  ];
+  final firestore = FirebaseFirestore.instance;
+  String? curRegistryId;
+
+  Future<RegistryItem> fetchRegistry() async {
+    QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance
+        .collection('registry')
+        .where('user.nickname', isEqualTo: '홍길동')
+        .withConverter<RegistryItem>(
+          fromFirestore: (snapshots, _) =>
+              RegistryItem.fromJson(snapshots.data()!),
+          toFirestore: (registry, _) => registry.toJson(),
+        )
+        .limit(1)
+        .get();
+
+    curRegistryId = snapshot.docs[0].id;
+    RegistryItem registryItem = snapshot.docs.map((e) => e.data()).toList()[0];
+    registryItem.registryId = curRegistryId;
+
+    return registryItem;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  // 차후에는 firebase에서 데이터 받아서 리스트 생성
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-          children: tests.map((i) {
-        // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
-        return SizedBox(
-            width: 400,
-            height: 180,
-            child: i.reservation == true // 예약 상태
-                ? Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                      width: 1,
-                      color: Colors.black,
-                    )),
-                    margin: EdgeInsets.only(top: 30, right: 30),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                            bottom: 0,
-                            left: 0,
-                            child: Row(
-                              children: [
-                                Container(
-                                    padding:
-                                        EdgeInsets.only(top: 10, right: 100),
-                                    child: Text(
-                                      i.receiver + '님의 위시',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    width: 370,
-                                    height: 40,
-                                    color: Colors.black.withOpacity(0.5)),
-                              ],
-                            )),
-                        Positioned(
-                            bottom: 5,
-                            right: 0,
-                            child: OutlinedButton(
-                              onPressed: () {},
-                              child: Text("예약 취소"),
-                              style: OutlinedButton.styleFrom(
-                                  primary: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(0)))),
-                            )),
-                        Positioned(
-                          top: 10,
-                          left: 0,
-                          child:
-                              SizedBox(width: 150, height: 130, child: i.img),
-                        ),
-                        Positioned(
-                            top: 0,
-                            right: 30,
-                            child: Column(
-                              children: [
-                                Container(
-                                  child: Text(
-                                    i.product,
-                                    style: TextStyle(fontSize: 13),
-                                  ),
-                                  margin: EdgeInsets.only(left: 40, top: 20),
-                                ),
-                                Container(
-                                    child: Text(
-                                      "${i.price}원",
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                    margin: EdgeInsets.only(left: 40, top: 30)),
-                              ],
-                            )),
-                      ],
-                    ),
-                  )
-                // 예약 상태가 아님
-                : i.check == true // 선물을 받음 체크 한 상태
-                    ? Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                          width: 1,
-                          color: Colors.black,
-                        )),
-                        margin: EdgeInsets.only(top: 30, right: 30),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                                bottom: 0,
-                                left: 0,
-                                child: Container(
-                                    padding:
-                                        EdgeInsets.only(top: 170, right: 5),
-                                    child: Text(
-                                      i.receiver + '님께 선물했어요',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    width: 370,
-                                    height: 200,
-                                    color: Colors.black.withOpacity(0.5))),
-                            Positioned(
-                              top: 10,
-                              left: 0,
-                              child: SizedBox(
-                                  width: 150, height: 130, child: i.img),
-                            ),
-                            Positioned(
-                                top: 0,
-                                right: 30,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      child: Text(
-                                        i.product,
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                      margin:
-                                          EdgeInsets.only(left: 40, top: 20),
-                                    ),
-                                    Container(
-                                        child: Text(
-                                          "${i.price}원",
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                        margin:
-                                            EdgeInsets.only(left: 40, top: 30)),
-                                  ],
-                                )),
-                          ],
-                        ),
-                      )
-                    // 선물 받음 체크 안한 상태
+    return FutureBuilder<RegistryItem>(
+        future: fetchRegistry(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData == false) {
+            return Text('loading');
+          } else {
+            RegistryItem registryItem = snapshot.data;
+            print(registryItem);
+            return SingleChildScrollView(
+                child: Container(
+              child: Column(
+                children: [
+                  _buildShareBar(),
+                  Column(
+                      children: registryItem.giveList.map((i) {
+                    // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
+                    return SizedBox(
+                      width: 400,
+                      height: 180,
+                      child: i.isBooked == true // 예약 상태
+                          ? _buildReservationStatusSizebox(i)
+                          // 예약 상태가 아님
+                          : i.isChecked == true // 선물 받음 체크 한 상태
+                              ? _buildCheckStatusSizebox(i)
+                              // 선물 받음 체크 안한 상태
+                              : i.isSended == true
+                                  ? _buildBeforeCheckStatusSizebox(i)
+                                  : _buildAnyStatusSizebox(i),
+                    );
+                  }).toList()),
+                ],
+              ),
+            ));
+          }
+        });
+  }
 
-                    : Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                          width: 1,
-                          color: Colors.black,
-                        )),
-                        margin: EdgeInsets.only(top: 30, right: 30),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                                bottom: 0,
-                                left: 0,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                        padding:
-                                            EdgeInsets.only(top: 10, right: 70),
-                                        child: Text(
-                                          i.receiver + '님께 선물했어요',
-                                          textAlign: TextAlign.right,
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                        width: 370,
-                                        height: 40,
-                                        color: Colors.black.withOpacity(0.5)),
-                                  ],
-                                )),
-                            Positioned(
-                                bottom: 5,
-                                right: 0,
-                                child: OutlinedButton(
-                                  onPressed: () {},
-                                  child: Text("취소"),
-                                  style: OutlinedButton.styleFrom(
-                                      primary: Colors.black,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(0)))),
-                                )),
-                            Positioned(
-                              top: 10,
-                              left: 0,
-                              child: SizedBox(
-                                  width: 150, height: 130, child: i.img),
-                            ),
-                            Positioned(
-                                top: 0,
-                                right: 30,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      child: Text(
-                                        i.product,
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                      margin:
-                                          EdgeInsets.only(left: 40, top: 20),
-                                    ),
-                                    Container(
-                                        child: Text(
-                                          "${i.price}원",
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                        margin:
-                                            EdgeInsets.only(left: 40, top: 30)),
-                                  ],
-                                )),
-                          ],
-                        ),
-                      ));
-      }).toList()),
+  Widget _buildProductImgSizebox(String url) {
+    // 이미지 widget
+    return Positioned(
+      top: 10,
+      left: 0,
+      child: SizedBox(width: 150, height: 130, child: Image.network(url)),
     );
+  }
+
+  Widget _buildProductInfo(String product_name) {
+    // 상품 이름과 가격 widget
+    return Positioned(
+        top: 0,
+        right: 30,
+        child: Column(
+          children: [
+            Container(
+              child: Text(
+                product_name,
+                style: TextStyle(fontSize: 13),
+              ),
+              margin: EdgeInsets.only(left: 40, top: 20),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildDescribe(String receiver, String describe, double _height,
+      double _top, double _right) {
+    return Positioned(
+        bottom: 0,
+        left: 0,
+        child: Container(
+            padding: EdgeInsets.only(top: _top, right: _right),
+            child: Text(
+              receiver + describe,
+              textAlign: TextAlign.right,
+              style: TextStyle(color: Colors.white),
+            ),
+            width: 370,
+            height: _height,
+            color: Colors.black.withOpacity(0.5)));
+  }
+
+  // 선물 받음 체크받은 상태
+  Widget _buildCheckStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildDescribe(user_data.receiver, '님께 선물을 받았어요.', 200, 170, 5),
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.productName),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReservationStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildDescribe(user_data.receiver, '님이 선물을 예약하셨어요.', 40, 10, 5),
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.productName),
+        ],
+      ),
+    );
+  }
+
+  // 아무 상태 없을 때
+  Widget _buildAnyStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.productName),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBeforeCheckStatusSizebox(user_data) {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+        width: 1,
+        color: Colors.black,
+      )),
+      margin: EdgeInsets.only(top: 30, right: 30),
+      child: Stack(
+        children: [
+          _buildDescribe(user_data.receiver, '님이 선물을 보냈어요.', 40, 10, 70),
+          Positioned(
+              bottom: 5,
+              right: 0,
+              child: OutlinedButton(
+                onPressed: () {},
+                child: Text("받음"),
+                style: OutlinedButton.styleFrom(
+                    primary: Colors.black,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0)))),
+              )),
+          _buildProductImgSizebox(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU'),
+          _buildProductInfo(user_data.productName),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShareBar() {
+    return Container(
+      width: 350,
+      height: 50,
+      margin: EdgeInsets.only(right: 30),
+      alignment: Alignment.center,
+      child: OutlinedButton(
+          onPressed: () => doShare(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("메세지와 함께 공유하기"),
+              Icon(Icons.share),
+            ],
+          ),
+          style: OutlinedButton.styleFrom(
+            primary: Colors.black,
+          )),
+    );
+  }
+
+  doShare() {
+    if (curRegistryId == null) {
+      return;
+    }
+    final dynamicLinkParams = DynamicLinkParameters(
+        uriPrefix: "https://wewish.page.link/",
+        link: Uri.parse("https://wewish.com/wishlist?rId=$curRegistryId"),
+        androidParameters:
+            const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
+        iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
+        socialMetaTagParameters:
+            const SocialMetaTagParameters(title: '홍길동님의 위시리스트'));
+    FirebaseDynamicLinks.instance
+        .buildShortLink(dynamicLinkParams)
+        .then((value) {
+      FlutterShare.share(
+        title: '위위시',
+        text: '홍길동님의 선물리스트',
+        linkUrl: value.shortUrl.toString(),
+      );
+    });
   }
 }
