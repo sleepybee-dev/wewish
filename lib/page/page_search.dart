@@ -109,9 +109,9 @@ class _SearchPageState extends State<SearchPage> {
                 ),
                 Row(
                   children: [
-                    Text("#"+user.hashTag[0], style: TextStyle(fontSize: 13,)),
-                    Text("#"+user.hashTag[1], style: TextStyle(fontSize: 13,)),
-                    Text("#"+user.hashTag[2], style: TextStyle(fontSize: 13,))
+                    _buildHashTagText(user.hashTag[0]),
+                    _buildHashTagText(user.hashTag[1]),
+                    _buildHashTagText(user.hashTag[2]),
                   ],
                 ),
 
@@ -119,5 +119,9 @@ class _SearchPageState extends State<SearchPage> {
             ))
       ],
     );
+  }
+
+  _buildHashTagText(String hashtag) {
+   return Text("#"+hashtag, style: TextStyle(fontSize: 13,));
   }
 }

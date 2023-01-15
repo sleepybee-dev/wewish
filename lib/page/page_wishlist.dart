@@ -34,8 +34,7 @@ class _WishListPageState extends State<WishListPage> {
         .get();
 
     curRegistryId = snapshot.docs[0].id;
-    // 레지스트리 아이템 리스트 중에 첫번째것의 인스턴스를 리턴?
-    // 현재 레지스트리를 가리키도록 수정 필요
+    // 현재 레지스트리를 가리키도록 수정 필요 -> 완?
     RegistryItem registryItem = snapshot.docs.map((e) => e.data()).toList()[0];
     registryItem.registryId = curRegistryId;
 
@@ -51,20 +50,29 @@ class _WishListPageState extends State<WishListPage> {
             centerTitle: true,
             title: Text('위시리스트',)),
         body: widget.registryItem == null ?
-        FutureBuilder(
+        FutureBuilder<RegistryItem>(
           future: fetchRegistry(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             }
             if (!snapshot.hasData || snapshot.hasError) {
-              return Text('ㅇㅟ시리스트 가져오기 실패');
+              return Text('위시리스트 가져오기 실패');
             }
             RegistryItem registryItem = snapshot.data!;
             return _buildBody(registryItem);
           },
         ) : _buildBody(widget.registryItem!),
       ),
+    );
+  }
+
+  Widget _buildBody(RegistryItem registryItem) {
+    return Column(
+      children: [
+        _buildUserProfile(registryItem.user),
+        Expanded(child: _buildWishList(registryItem.wishList)),
+      ],
     );
   }
 
@@ -88,14 +96,14 @@ class _WishListPageState extends State<WishListPage> {
                   Row(
                     children: [
                       Text(user.nickname),
-                      Text("("+"id"+")"), // firebase에서 가져올 것
+                      //Text("("+"id"+")"), // id 없앰
                     ],
                   ),
                   Row(
                     children: [
-                      Text("#"+user.hashTag[0], style: TextStyle(fontSize: 13,)),
-                      Text("#"+user.hashTag[1], style: TextStyle(fontSize: 13,)),
-                      Text("#"+user.hashTag[2], style: TextStyle(fontSize: 13,))
+                      _buildHashTagText(user.hashTag[0]),
+                      _buildHashTagText(user.hashTag[1]),
+                      _buildHashTagText(user.hashTag[2]),
                     ],
                   ),
 
@@ -132,68 +140,71 @@ class _WishListPageState extends State<WishListPage> {
                   ),
                 ),
               ),
-          ButtonBar(
-            alignment: MainAxisAlignment.end,
-            buttonPadding: EdgeInsets.only(left: 20),
-            children: [
-              // 임시 로그인/로그아웃을 위한 버튼
-              TextButton(
-                onPressed: (){
-                  setState(() {
-                    user = !user;
-                  });
-                },
-                child:
-                Text(user == true ? "임시로그아웃" : "임시로그인",style: TextStyle(color: Colors.deepOrange)),
+              ButtonBar(
+                alignment: MainAxisAlignment.end,
+                buttonPadding: EdgeInsets.only(left: 20),
+                children: [
+                  // 임시 로그인/로그아웃을 위한 버튼
+                  TextButton(
+                    onPressed: (){
+                      setState(() {
+                        user = !user;
+                      });
+                    },
+                    child:
+                    Text(user == true ? "임시로그아웃" : "임시로그인",style: TextStyle(color: Colors.deepOrange)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (user == true) {
+                        final ref = await FirebaseFirestore.instance.collection('registry').doc(widget.registryItem!.registryId!);
+                        List<WishItem> before = widget.registryItem!.wishList;
+                        var tempUser = widget.registryItem!.user;
+
+                        List<WishItem> after = before;
+                        print(after[index].productName);
+                        print(after[index].isBooked);
+                        after[index].isBooked = !after[index].isBooked;
+                        print(after[index].isBooked);
+                        before.forEach((element) {
+                          print(element.toJson());
+                        });
+                        after.forEach((element) {
+                          print(element.toJson());
+                        });
+
+                        // set사용
+                        RegistryItem newfield = RegistryItem(user: tempUser, wishList: after);
+                        ref.set(newfield.toJson());
+
+                        // arrayRemove, arrayUnion 말고 set 덮어쓰기로 구현
+                        // removeWishlistToUpdateReservation(before, registryItem);
+                        // addWishlistToUpdateReservation(temp, registryItem);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('예약되었습니다.'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                      else{
+                        // 필요 기능: page_wish_reservation으로 이동
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Reservation()),
+                        );
+                      }
+                    }, // Navigate 필요
+                    child: Text('예약'),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+
+                    },
+                    child: Text('선물하기'),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (user == true) {
-                    // 필요 기능: 파베 상태 변경, 예약확인 알림창 또는 스낵바(추후)
-                    // 필요 인자: registryList[index]의 index or item자체
-
-                    // 배열 말고 새로운 필드로 테스트 -> 변경됨!
-                    DocumentReference<Map<String, dynamic>> registryCollection = FirebaseFirestore.instance.collection('registry')
-                        .doc(curRegistryId);
-                    // 기존 wishlist
-                    List<WishItem> before = registryItem.wishList; // registryItem.registryId <- 이게 첫번째 registry만 가져온다는 문제잇음
-                    // print("before");
-                    // before.forEach((element) {
-                    //   print(element.toJson());
-                    // });
-                    List<WishItem> temp = before;
-                    temp[index].isBooked = !temp[index].isBooked;
-
-                    if (widget.registryItem == null) {
-                      final ref = await FirebaseFirestore.instance.collection('registry').doc(
-                          curRegistryId);
-                      ref.set(data);
-                    } else {
-                      final ref = await FirebaseFirestore.instance.collection('registry').doc(widget.registryItem!.registryId!);
-                    }
-                    removeWishlistToUpdateReservation(before, registryItem);
-                    addWishlistToUpdateReservation(temp, registryItem);
-                    //temp = [];
-
-                  }
-                  else{
-                    // 필요 기능: page_wish_reservation으로 이동
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Reservation()),
-                    );
-                  }
-                }, // Navigate 필요
-                child: Text('예약'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-
-                },
-                child: Text('선물하기'),
-              ),
-            ],
-          ),
               FutureBuilder<OpengraphData>(
                   future: _fetchOpengraphData(wishItem.url),
                   builder: (context, snapshot) {
@@ -209,71 +220,63 @@ class _WishListPageState extends State<WishListPage> {
     );
   }
 
+  _buildHashTagText(String hashtag) {
+    return Text("#" + hashtag, style: TextStyle(fontSize: 13,));
+  }
+
 }
 
-  Widget _buildOpenGraphBox(OpengraphData opengraphData) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 100,
-            child: Image.network(opengraphData.image, fit: BoxFit.cover,)),
-        Text(opengraphData.title, style: TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis,),
-        Text(opengraphData.description),
-        Text(opengraphData.url, style: TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis,),
-      ],
-    );
-  }
+Widget _buildOpenGraphBox(OpengraphData opengraphData) {
+  return Column(
+    children: [
+      SizedBox(
+        height: 100,
+          child: Image.network(opengraphData.image, fit: BoxFit.cover,)),
+      Text(opengraphData.title, style: TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis,),
+      Text(opengraphData.description),
+      Text(opengraphData.url, style: TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis,),
+    ],
+  );
+}
 
-  Future<void> addWishlistToUpdateReservation(List<WishItem> temp, RegistryItem registryItem) {
-    print("after");
+// Future<void> addWishlistToUpdateReservation(List<WishItem> temp, RegistryItem registryItem) {
+//   print("after");
+//
+//   List<WishItem> after = temp;
+//   after.forEach((element) {
+//     print(element.toJson());
+//   });
+//   return registryCollection
+//       .doc(registryItem.registryId)
+//       .update({
+//     "wishlist": FieldValue.arrayUnion(
+//         after.map((e) => e.toJson()).toList()),
+//   })
+//       .then((value) => print("array added"))
+//       .catchError((error) =>
+//       print("Failed to add Wishlist: $error"));
+// }
+//
+// Future<void> removeWishlistToUpdateReservation(List<WishItem> before, RegistryItem registryItem) {
+//   print("before");
+//   before.forEach((element) {
+//     print(element.toJson());
+//   });
+//   return registryCollection
+//       .doc(registryItem.registryId)
+//       .update({
+//     "wishlist" : FieldValue.arrayRemove(before.map((e) => e.toJson()).toList()),
+//   })
+//       .then((value) => print("array removed"))
+//       .catchError((error) => print("Failed to remove Wishlist: $error"));
+// }
 
-    List<WishItem> after = temp;
-    after.forEach((element) {
-      print(element.toJson());
-    });
-    return registryCollection
-        .doc(registryItem.registryId)
-        .update({
-      "wishlist": FieldValue.arrayUnion(
-          after.map((e) => e.toJson()).toList()),
-    })
-        .then((value) => print("array added"))
-        .catchError((error) =>
-        print("Failed to add Wishlist: $error"));
-  }
+Future<OpengraphData> _fetchOpengraphData(String url) async {
+  return await MetaParser.getOpenGraphData(url);
+}
 
-  Future<void> removeWishlistToUpdateReservation(List<WishItem> before, RegistryItem registryItem) {
-    // before = registryItem.wishList;
-    // temp = before;
-    print("before");
-    before.forEach((element) {
-      print(element.toJson());
-    });
-    return registryCollection
-        .doc(registryItem.registryId)
-        .update({
-      "wishlist" : FieldValue.arrayRemove(before.map((e) => e.toJson()).toList()),
-    })
-        .then((value) => print("array removed"))
-        .catchError((error) => print("Failed to remove Wishlist: $error"));
-  }
-
-  Future<OpengraphData> _fetchOpengraphData(String url) async {
-    return await MetaParser.getOpenGraphData(url);
-  }
-
-  _launchUrl(String url) async {
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
-  }
-
-  Widget _buildBody(RegistryItem registryItem) {
-    return Column(
-      children: [
-        _buildUserProfile(registryItem.user),
-        Expanded(child: _buildWishList(registryItem.wishList)),
-      ],
-    );
+_launchUrl(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url));
   }
 }
