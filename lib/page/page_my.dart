@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/page/page_my_givelist.dart';
 import 'package:wewish/page/page_my_wishlist.dart';
+import 'package:wewish/page/page_settings.dart';
 import 'package:wewish/router.dart' as router;
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 
@@ -102,7 +104,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
           onPressed: () => _goAddPage(),
         ),
         body: Stack(alignment: Alignment.topRight, children: [
-          TextButton(onPressed: _goSettingPage, child: Text('설정')),
+          TextButton(onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));}, child: Text('설정')),
           Column(
             children: [
               Container(

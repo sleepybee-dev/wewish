@@ -1,11 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:wewish/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:textfield_tags/textfield_tags.dart';
 import 'package:wewish/page/page_edit_profile.dart';
+import 'package:wewish/page/page_home.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -78,7 +74,7 @@ class MyStatelessWidget extends StatelessWidget {
           FirebaseAuth.instance.signOut();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const Home()),
+            MaterialPageRoute(builder: (context) => const HomePage()),
           );
         },
         style: OutlinedButton.styleFrom(
