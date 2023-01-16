@@ -87,7 +87,7 @@ flutter:
   fonts:
     - family: AppleSDGothicNeo
       fonts:
-        - asset: fonts/AppleSDGothicNeoM.ttf
+        - asset: fonts/AppleSDGothicNeoL.ttf
         - asset: fonts/AppleSDGothicNeoB.ttf
           weight: 700
         - asset: fonts/AppleSDGothicNeoEB.ttf
@@ -95,7 +95,7 @@ flutter:
         - asset: fonts/AppleSDGothicNeoH.ttf
           weight: 900
         - asset: fonts/AppleSDGothicNeoL.ttf
-          weight: 300
+          weight: 500
 
 
 

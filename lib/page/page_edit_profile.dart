@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,9 +9,9 @@ import 'package:wewish/model/item_user.dart';
 import 'package:path/path.dart';
 
 class EditProfile extends StatefulWidget {
-  UserItem? userItem;
+  UserItem userItem;
 
-  EditProfile({Key? key, this.userItem}) : super(key: key);
+  EditProfile({Key? key, required this.userItem}) : super(key: key);
 
   @override
   State<EditProfile> createState() => _EditProfileState();
@@ -21,13 +22,12 @@ class _EditProfileState extends State<EditProfile> {
       firebase_storage.FirebaseStorage.instance;
 
   TextEditingController _nameController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.userItem != null) {
-      _nameController.text = widget.userItem!.nickname;
-    }
+    _nameController.text = widget.userItem.nickname;
   }
 
   File? _photo;
@@ -39,23 +39,28 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       if (pickedFile != null) {
         _photo = File(pickedFile.path);
-        uploadPic(context as BuildContext);
+        if (_photo != null) {
+          uploadPic(_photo!);
+        }
       } else {
         print('No image selected.');
       }
     });
   }
 
-  Future uploadPic(BuildContext context) async {
-    if (_photo == null) return;
-    final fileName = basename(_photo!.path);
-    final destination = 'files/$fileName';
+  Future<String?> uploadPic(File selectedPhoto) async {
+    final fileName = basename(selectedPhoto.path) + DateTime.now().toIso8601String();
+    final destination = 'profile/$fileName';
 
     try {
       final ref = firebase_storage.FirebaseStorage.instance
           .ref(destination)
-          .child('file/');
-      await ref.putFile(_photo!);
+          .child('profile/');
+
+      // TODO image compress
+
+      firebase_storage.TaskSnapshot snapshot = await ref.putFile(selectedPhoto);
+      return snapshot.ref.getDownloadURL();
     } catch (e) {
       print('error occured');
     }
@@ -65,32 +70,43 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('프로필 수정')),
-        body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            child: ListView(
-              children: <Widget>[
-                imageProfile(),
-                SizedBox(height: 20),
-                Text('*닉네임',
-                    style:
-                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                nameField(),
-                SizedBox(height: 20),
-                Text('*해시태그',
-                    style:
-                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                hashtagField(),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  child: Text("변경 사항 저장"),
-                  onPressed: () {
-                    uploadPic(context); // Respond to button press
-                  },
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(400, 50)),
-                )
-              ],
-            )));
+        body: Stack(children: [
+          _isLoading ? Center(child: CircularProgressIndicator()) : Container(),
+          Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: ListView(
+                children: <Widget>[
+                  imageProfile(),
+                  SizedBox(height: 20),
+                  Text('*닉네임',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  nameField(),
+                  SizedBox(height: 20),
+                  Text('*해시태그',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  hashtagField(),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    child: Text("변경 사항 저장"),
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      await uploadPic(context);
+
+                      await updateUser();
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(400, 50)),
+                  )
+                ],
+              ))
+        ]));
   }
 
   Widget imageProfile() {
@@ -111,13 +127,9 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                   )
                 : Image.network(
-                    widget.userItem != null
-                        ? widget.userItem!.profileUrl
-                        : 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911',
+                    widget.userItem.profileUrl,
                     fit: BoxFit.fill,
                   ),
-            //기본이미지(true)
-//가져온이미지(false)
           ),
           Positioned(
               bottom: 20,
@@ -141,6 +153,9 @@ class _EditProfileState extends State<EditProfile> {
   Widget nameField() {
     return TextFormField(
       controller: _nameController,
+      onEditingComplete: () {
+        widget.userItem.nickname = _nameController.text;
+      },
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderSide: BorderSide(
@@ -161,6 +176,7 @@ class _EditProfileState extends State<EditProfile> {
     return TextFieldTags(
       textSeparators: const [' ', ','],
       tagsStyler: TagsStyler(
+          showHashtag: true,
           tagTextStyle:
               TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
           tagDecoration: BoxDecoration(
@@ -170,15 +186,17 @@ class _EditProfileState extends State<EditProfile> {
           tagCancelIcon: Icon(Icons.cancel, size: 18.0, color: Colors.black),
           tagPadding: const EdgeInsets.all(6.0)),
       onTag: (tag) {
-        print(tag);
+        widget.userItem.hashTag.add(tag);
       },
-      onDelete: (tag) {},
+      onDelete: (tag) {
+        widget.userItem.hashTag.remove(tag);
+      },
       textFieldStyler: TextFieldStyler(
         textFieldEnabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.lightBlue, width: 1.0),
         ),
-        helperText: '최대 10자 이내로 타이핑 후 ,를 입력해주세요',
-        hintText: '상태메세지를 입력해주세요.',
+        helperText: '자신을 알아볼 수 있는 태그를 3개 이상 입력해 주세요.',
+        hintText: '(예)#제주도토박이 #뿌링클처돌이 #도시어부',
         helperStyle: const TextStyle(color: Colors.grey),
       ),
     );
@@ -188,5 +206,12 @@ class _EditProfileState extends State<EditProfile> {
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> updateUser() async {
+    FirebaseFirestore.instance
+        .collection('user')
+        .doc(widget.userItem.uId!)
+        .update(widget.userItem.toJson());
   }
 }

@@ -203,17 +203,17 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   }
 
   Future<UserItem?> _fetchFirebaseUserByUId(String uId) async {
-    QuerySnapshot<UserItem> snapshot = await FirebaseFirestore.instance
-        .collection('user').where('uId', isEqualTo: uId)
+    DocumentSnapshot<UserItem> snapshot = await FirebaseFirestore.instance
+        .collection('user').doc(uId)
         .withConverter<UserItem>(
       fromFirestore: (snapshots, _) =>
           UserItem.fromJson(snapshots.data()!),
       toFirestore: (user, _) => user.toJson(),
     ).get();
-    if (snapshot.docs.isEmpty) {
-      return null;
+    if (snapshot.exists) {
+      return snapshot.data();
     } else {
-      return snapshot.docs[0].data();
+      return null;
     }
   }
 

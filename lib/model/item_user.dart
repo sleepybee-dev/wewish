@@ -2,7 +2,7 @@ class UserItem {
   String? uId;
   String nickname = 'No Nickname';
   String profileUrl =
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYfI9jg0TRgOlwhYgZaJvj_-zl8uhfpcqMw&usqp=CAU';
+      'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911';
   List<String> hashTag = [];
   String social = 'kakao'; // kakao, apple
   String email = '';
