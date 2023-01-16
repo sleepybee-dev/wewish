@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:async';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -7,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:path/path.dart';
-
 
 class EditProfile extends StatefulWidget {
   UserItem? userItem;
@@ -21,6 +19,16 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
+
+  TextEditingController _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.userItem != null) {
+      _nameController.text = widget.userItem!.nickname;
+    }
+  }
 
   File? _photo;
   final ImagePicker _picker = ImagePicker();
@@ -37,7 +45,6 @@ class _EditProfileState extends State<EditProfile> {
       }
     });
   }
-
 
   Future uploadPic(BuildContext context) async {
     if (_photo == null) return;
@@ -64,12 +71,14 @@ class _EditProfileState extends State<EditProfile> {
               children: <Widget>[
                 imageProfile(),
                 SizedBox(height: 20),
-                Text('*닉네임', style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.bold)),
+                Text('*닉네임',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 nameField(),
                 SizedBox(height: 20),
-                Text('*해시태그', style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.bold)),
+                Text('*해시태그',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 hashtagField(),
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -81,9 +90,7 @@ class _EditProfileState extends State<EditProfile> {
                       minimumSize: const Size(400, 50)),
                 )
               ],
-            )
-        )
-    );
+            )));
   }
 
   Widget imageProfile() {
@@ -95,17 +102,20 @@ class _EditProfileState extends State<EditProfile> {
             backgroundColor: Colors.transparent,
             child: _photo != null
                 ? ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: Image.file(
-                _photo!,
-                width: 100,
-                height: 100,
-                fit: BoxFit.fitHeight,
-              ),
-            )
+                    borderRadius: BorderRadius.circular(50),
+                    child: Image.file(
+                      _photo!,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.fitHeight,
+                    ),
+                  )
                 : Image.network(
-              'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911',
-              fit: BoxFit.fill,),
+                    widget.userItem != null
+                        ? widget.userItem!.profileUrl
+                        : 'https://firebasestorage.googleapis.com/v0/b/wewish-b573a.appspot.com/o/profile%2Fdefault.jpg?alt=media&token=a3a5f0b3-9322-428e-a235-1ed97487e911',
+                    fit: BoxFit.fill,
+                  ),
             //기본이미지(true)
 //가져온이미지(false)
           ),
@@ -128,9 +138,9 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-
   Widget nameField() {
     return TextFormField(
+      controller: _nameController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderSide: BorderSide(
@@ -147,43 +157,36 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-
   Widget hashtagField() {
-    return Column(
-        children: [
-          TextFieldTags(
-            textSeparators: const [' ', ','],
-            tagsStyler: TagsStyler(
-                tagTextStyle: TextStyle(
-                    fontWeight: FontWeight.normal, color: Colors.black),
-                tagDecoration: BoxDecoration(color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.0),
-                    border: Border.all(color: Colors.blue)),
-                tagCancelIcon: Icon(
-                    Icons.cancel, size: 18.0, color: Colors.black),
-                tagPadding: const EdgeInsets.all(6.0)
-            ),
-            onTag: (tag) {
-              print(tag);
-            },
-            onDelete: (tag) {},
-            textFieldStyler: TextFieldStyler(
-
-              textFieldEnabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                    color: Colors.lightBlue, width: 1.0
-                ),
-              ),
-              helperText: '최대 10자 이내로 타이핑 후 ,를 입력해주세요',
-              hintText: '상태메세지를 입력해주세요.',
-              helperStyle: const TextStyle(color: Colors.grey),
-            ),
-          ),
-
-
-        ]
+    return TextFieldTags(
+      textSeparators: const [' ', ','],
+      tagsStyler: TagsStyler(
+          tagTextStyle:
+              TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+          tagDecoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: Colors.blue)),
+          tagCancelIcon: Icon(Icons.cancel, size: 18.0, color: Colors.black),
+          tagPadding: const EdgeInsets.all(6.0)),
+      onTag: (tag) {
+        print(tag);
+      },
+      onDelete: (tag) {},
+      textFieldStyler: TextFieldStyler(
+        textFieldEnabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.lightBlue, width: 1.0),
+        ),
+        helperText: '최대 10자 이내로 타이핑 후 ,를 입력해주세요',
+        hintText: '상태메세지를 입력해주세요.',
+        helperStyle: const TextStyle(color: Colors.grey),
+      ),
     );
   }
 
-
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 }
