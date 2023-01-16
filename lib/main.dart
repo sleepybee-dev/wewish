@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/firebase_options.dart';
 import 'package:wewish/home.dart';
@@ -10,6 +11,7 @@ import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/router.dart' as router;
 
 void main() async {
+  KakaoSdk.init(nativeAppKey: 'fd06fc462ea9be9e6ccbb2cc0a121309');
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -20,11 +22,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -49,8 +49,7 @@ class MyApp extends StatelessWidget {
             } else {
               return Home();
             }
-          })
-      ),
+          })),
     );
   }
 
