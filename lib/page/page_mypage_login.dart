@@ -82,19 +82,6 @@ class _MypageLoginState extends State<MypageLogin> {
                       backgroundColor: Color(0xfffee500)),
                 ),
               ),
-              Container(
-                width: 220,
-                child: OutlinedButton(
-                  onPressed: () {},
-                  child: Text(
-                    '구글 로그인',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w600),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                      backgroundColor: Color(0xffffffff)),
-                ),
-              ),
               Platform.isIOS ? _buildAppleLoginButton() : Container()
             ],
           ),

@@ -174,7 +174,7 @@ class _WishListPageState extends State<WishListPage> {
                         });
 
                         // set사용
-                        RegistryItem newfield = RegistryItem(user: tempUser, wishList: after);
+                        RegistryItem newfield = RegistryItem(user: tempUser, wishList: after, giveList: []);
                         ref.set(newfield.toJson());
 
                         // arrayRemove, arrayUnion 말고 set 덮어쓰기로 구현
