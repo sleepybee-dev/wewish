@@ -3,13 +3,13 @@ import 'package:wewish/model/firebase_auth_remote_data_source.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wewish/model/social_login.dart';
 
-class KakaoLoginViewModel {
+class SocialLoginViewModel {
   final _firebaseAuthDataSource = FirebaseAuthRemoteDataSource();
   final SocialLogin _socialLogin;
   bool isLogined = false;
   kakao.User? user;
 
-  KakaoLoginViewModel(this._socialLogin);
+  SocialLoginViewModel(this._socialLogin);
 
   Future login() async {
     isLogined = await _socialLogin.login();
