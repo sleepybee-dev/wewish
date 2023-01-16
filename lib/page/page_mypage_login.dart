@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wewish/model/item_user.dart';
+import 'package:wewish/model/kakao_login_test.dart';
+import 'package:wewish/model/kakao_login_view.dart';
 import 'package:wewish/page/page_settings.dart';
 
 import 'package:wewish/router.dart' as router;
@@ -18,25 +20,7 @@ class MypageLogin extends StatefulWidget {
 }
 
 class _MypageLoginState extends State<MypageLogin> {
-
-  // Future<UserCredential> signInWithGoogle() async {
-  // 구글 로그인
-  // Trigger the authentication flow
-  // final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-  //
-  // // Obtain the auth details from the request
-  // final GoogleSignInAuthentication? googleAuth =
-  // await googleUser?.authentication;
-  //
-  // // Create a new credential
-  // final credential = GoogleAuthProvider.credential(
-  //   accessToken: googleAuth?.accessToken,
-  //   idToken: googleAuth?.idToken,
-  // );
-
-  // Once signed in, return the UserCredential
-  // return await FirebaseAuth.instance.signInWithCredential(credential);
-  // }
+  final viewModel = KakaoLoginViewModel(KakaoLogin());
 
   @override
   Widget build(BuildContext context) {
@@ -45,17 +29,18 @@ class _MypageLoginState extends State<MypageLogin> {
         children: [
           Container(
             alignment: Alignment.topRight,
-            child: TextButton(onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-            }, child: Text('설정')),
+            child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsPage()),
+                  );
+                },
+                child: Text('설정')),
           ),
-          SizedBox(height: 100),
+          // SizedBox(height: 70),
           Column(
             children: [
-
               Text('로그인하여',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
               Text('나만의 위시리스트를',
@@ -65,11 +50,9 @@ class _MypageLoginState extends State<MypageLogin> {
             ],
           ),
           SizedBox(height: 50),
-          Container(height: 180, child: Text('photo')),
-
+          // Container(height: 150, child: Text('photo')),
           Column(
             children: [
-
               Container(
                 width: 220,
                 child: OutlinedButton(
@@ -86,7 +69,10 @@ class _MypageLoginState extends State<MypageLogin> {
               Container(
                 width: 220,
                 child: OutlinedButton(
-                  onPressed: () => {},
+                  onPressed: () async {
+                    await viewModel.login();
+                    setState(() {});
+                  },
                   child: Text(
                     '카카오 로그인',
                     style: TextStyle(
@@ -114,7 +100,6 @@ class _MypageLoginState extends State<MypageLogin> {
           ),
         ],
       ),
-
     );
   }
 
@@ -141,5 +126,4 @@ class _MypageLoginState extends State<MypageLogin> {
 
     return await FirebaseAuth.instance.signInWithCredential(oauthCredential);
   }
-
 }
