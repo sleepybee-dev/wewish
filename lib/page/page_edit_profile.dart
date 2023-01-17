@@ -22,7 +22,8 @@ class _EditProfileState extends State<EditProfile> {
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
 
-  TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextFieldTagsController _hashTagController = TextFieldTagsController();
   bool _isLoading = false;
 
   @override
@@ -162,6 +163,7 @@ class _EditProfileState extends State<EditProfile> {
 
   Widget hashtagField() {
     return TextFieldTags(
+      textFieldTagsController: _hashTagController,
       initialTags: widget.userItem.hashTag,
       textSeparators: const [' ', ','],
       tagsStyler: TagsStyler(
@@ -194,6 +196,7 @@ class _EditProfileState extends State<EditProfile> {
   @override
   void dispose() {
     _nameController.dispose();
+    _hashTagController.dispose();
     super.dispose();
   }
 
