@@ -1,15 +1,15 @@
-import 'dart:typed_data';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/kakao_login_test.dart';
 import 'package:wewish/viewmodel/viewmodel_social_login.dart';
 import 'package:wewish/page/page_edit_profile.dart';
-import 'package:wewish/page/page_home.dart';
 
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  UserItem userItem;
+
+  SettingsPage({Key? key, required this.userItem}) : super(key: key);
 
   static const String _title = '설정';
 
@@ -19,14 +19,17 @@ class SettingsPage extends StatelessWidget {
       title: _title,
       home: Scaffold(
         appBar: AppBar(title: const Text(_title)),
-        body: const MyStatelessWidget(),
+        body: MyStatelessWidget(userItem: userItem,),
       ),
     );
   }
 }
 
 class MyStatelessWidget extends StatelessWidget {
-  const MyStatelessWidget({Key? key}) : super(key: key);
+
+  UserItem userItem;
+
+  MyStatelessWidget({Key? key, required this.userItem}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class MyStatelessWidget extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EditProfile()),
+            MaterialPageRoute(builder: (context) => EditProfile(userItem: userItem,)),
           );
         },
         style: OutlinedButton.styleFrom(

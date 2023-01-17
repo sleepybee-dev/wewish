@@ -23,7 +23,7 @@ class _MyPageTempState extends State<MyPageTemp> {
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             print(snapshot);
             if (!snapshot.hasData) {
-              return MypageLogin();
+              return MyPageLogin();
             } else {
               return MyPage(user:snapshot.data as User);
             }

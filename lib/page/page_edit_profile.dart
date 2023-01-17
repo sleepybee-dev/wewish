@@ -33,15 +33,16 @@ class _EditProfileState extends State<EditProfile> {
   File? _photo;
   final ImagePicker _picker = ImagePicker();
 
-  Future imgFromGallery() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future pickImageFromGallery() async {
+    final pickedFile = await _picker.pickImage(
+        maxWidth: 320,
+        maxHeight: 320,
+        imageQuality: 50,
+        source: ImageSource.gallery);
 
     setState(() {
       if (pickedFile != null) {
         _photo = File(pickedFile.path);
-        if (_photo != null) {
-          uploadPic(_photo!);
-        }
       } else {
         print('No image selected.');
       }
@@ -49,15 +50,12 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<String?> uploadPic(File selectedPhoto) async {
-    final fileName = basename(selectedPhoto.path) + DateTime.now().toIso8601String();
+    final fileName = widget.userItem.uId! + DateTime.now().toIso8601String() + basename(selectedPhoto.path).replaceAll('scaled_image_picker', '');
     final destination = 'profile/$fileName';
 
     try {
       final ref = firebase_storage.FirebaseStorage.instance
-          .ref(destination)
-          .child('profile/');
-
-      // TODO image compress
+          .ref(destination);
 
       firebase_storage.TaskSnapshot snapshot = await ref.putFile(selectedPhoto);
       return snapshot.ref.getDownloadURL();
@@ -90,17 +88,7 @@ class _EditProfileState extends State<EditProfile> {
                   SizedBox(height: 20),
                   ElevatedButton(
                     child: Text("변경 사항 저장"),
-                    onPressed: () async {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      await uploadPic(context);
-
-                      await updateUser();
-                      setState(() {
-                        _isLoading = false;
-                      });
-                    },
+                    onPressed: () => _doUpdateProfile(context),
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(400, 50)),
                   )
@@ -123,12 +111,12 @@ class _EditProfileState extends State<EditProfile> {
                       _photo!,
                       width: 100,
                       height: 100,
-                      fit: BoxFit.fitHeight,
+                      fit: BoxFit.cover,
                     ),
                   )
                 : Image.network(
                     widget.userItem.profileUrl,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
                   ),
           ),
           Positioned(
@@ -136,8 +124,7 @@ class _EditProfileState extends State<EditProfile> {
               right: 20,
               child: InkWell(
                 onTap: () {
-                  imgFromGallery();
-                  Navigator.of(context as BuildContext).pop();
+                  pickImageFromGallery();
                 },
                 child: Icon(
                   Icons.add,
@@ -212,6 +199,31 @@ class _EditProfileState extends State<EditProfile> {
     FirebaseFirestore.instance
         .collection('user')
         .doc(widget.userItem.uId!)
-        .update(widget.userItem.toJson());
+        .set(widget.userItem.toJson());
+  }
+
+  _doUpdateProfile(BuildContext context) async {
+      setState(() {
+        _isLoading = true;
+      });
+      if (_isValidUserData()) {
+        final profileUrl = await uploadPic(_photo!);
+        if (profileUrl != null) {
+          widget.userItem.profileUrl = profileUrl;
+          updateUser().then((value) {
+            Navigator.of(context).pop();
+          });
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('입력란을 채워주세요.')));
+      }
+      setState(() {
+        _isLoading = false;
+      });
+
+  }
+
+  bool _isValidUserData() {
+    return _photo != null && widget.userItem.nickname.isNotEmpty && widget.userItem.nickname.length >= 2 && widget.userItem.hashTag.length >= 3;
   }
 }

@@ -12,14 +12,14 @@ import 'package:wewish/page/page_settings.dart';
 
 import 'package:wewish/router.dart' as router;
 
-class MypageLogin extends StatefulWidget {
-  const MypageLogin({Key? key}) : super(key: key);
+class MyPageLogin extends StatefulWidget {
+  const MyPageLogin({Key? key}) : super(key: key);
 
   @override
-  State<MypageLogin> createState() => _MypageLoginState();
+  State<MyPageLogin> createState() => _MyPageLoginState();
 }
 
-class _MypageLoginState extends State<MypageLogin> {
+class _MyPageLoginState extends State<MyPageLogin> {
   final viewModel = SocialLoginViewModel(KakaoLogin());
   bool _isLoading = false;
 
@@ -31,18 +31,6 @@ class _MypageLoginState extends State<MypageLogin> {
           _isLoading ? Center(child: CircularProgressIndicator()) : Container(),
           Column(
           children: [
-            Container(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsPage()),
-                    );
-                  },
-                  child: Text('설정')),
-            ),
-            // SizedBox(height: 70),
             Column(
               children: [
                 Text('로그인하여',

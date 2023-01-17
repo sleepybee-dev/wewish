@@ -39,6 +39,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   ];
   List user_hashtag = [];
 
+  UserItem? _curUser;
+
   void setUser(profileUrl, nickname) {
     user_datas.add(UserTemp(profileUrl: profileUrl, nickname: nickname));
   }
@@ -89,6 +91,8 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
             ..lastVisitDate = DateTime.now()
             ..email = loginUser.email ?? '';
           _goProfileSettingPage(newUser);
+        } else {
+          _curUser = userItem;
         }
       });
     }
@@ -104,7 +108,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
           onPressed: () => _goAddPage(),
         ),
         body: Stack(alignment: Alignment.topRight, children: [
-          TextButton(onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));}, child: Text('설정')),
+          TextButton(onPressed: _goSettingPage, child: Text('설정')),
           Column(
             children: [
               Container(
@@ -199,7 +203,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   }
 
   void _goSettingPage() {
-    Navigator.pushNamed(context, router.settingsPage);
+    Navigator.pushNamed(context, router.settingsPage, arguments: _curUser);
   }
 
   Future<UserItem?> _fetchFirebaseUserByUId(String uId) async {
