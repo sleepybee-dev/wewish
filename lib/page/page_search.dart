@@ -46,7 +46,7 @@ class _SearchPageState extends State<SearchPage> {
               )),
             ],
           ),
-          CommonTextField(validationText: '닉네임',), // Test
+          CommonTextField(validationText: '아이디', hintText: '아이디를 입력하세요', controller: TextEditingController()), // Test
           Expanded(
               child: Container(
                 color: Colors.black12,

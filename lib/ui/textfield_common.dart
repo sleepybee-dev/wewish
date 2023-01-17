@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class CommonTextField extends StatefulWidget {
-  String validationText;
+  TextEditingController? controller;
+  String? validationText;
   String? hintText;
 
-  CommonTextField({Key? key, required this.validationText, this.hintText}) : super(key: key);
+  CommonTextField({Key? key, required this.validationText, this.controller, this.hintText}) : super(key: key);
 
   @override
   State<CommonTextField> createState() => _CommonTextFieldState();
@@ -14,9 +15,8 @@ class CommonTextField extends StatefulWidget {
 
 class _CommonTextFieldState extends State<CommonTextField> {
   final _formKey = GlobalKey<FormState>();
-  final _controller = TextEditingController();
-
   String _value = ''; // Form 입력 값 저장
+  bool flag = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _CommonTextFieldState extends State<CommonTextField> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
-              controller: _controller,
+              controller: widget.controller,
               textInputAction: TextInputAction.search,
               onFieldSubmitted: (String value) { // TextFormField 입력값 반환
                 final formKeyState = _formKey.currentState!;
@@ -44,18 +44,32 @@ class _CommonTextFieldState extends State<CommonTextField> {
               },
               validator: (value){
                 if (value == null || value.isEmpty){
-                  return '${widget.validationText} 을(를) 입력하세요';
+                  return '${widget.validationText}을(를) 한 글자 이상 입력하세요';
                 }
                 return null;
               },
+              onChanged: (text) {
+                setState(() {
+                  flag = true;
+                });
+              },
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                suffixIcon: IconButton(
-                  onPressed: _controller.clear,
-                  icon: Icon(Icons.clear),
-                ),
+                suffixIcon: (flag && widget.controller?.text != '')
+                    ? IconButton(
+                  onPressed: (){
+                    setState(() {
+                      flag = false;
+                    });
+                    widget.controller?.clear();
+                    return;
+                  },
+                  icon: Icon(Icons.clear),)
+                    : null,
+                border: inputBorder(Colors.lightBlue),
                 focusedBorder: inputBorder(Colors.lightBlueAccent),
                 enabledBorder: inputBorder(Colors.lightBlue),
+                errorBorder: inputBorder(Colors.redAccent),
               ),
             ),
           )
