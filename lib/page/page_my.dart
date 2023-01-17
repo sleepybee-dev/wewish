@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/page/page_my_givelist.dart';
 import 'package:wewish/page/page_my_wishlist.dart';
 import 'package:wewish/page/page_settings.dart';
+import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/router.dart' as router;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -18,11 +20,17 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
+  
   late TabController _tabController;
-
   final firestore = FirebaseFirestore.instance;
-
   UserItem? _curUser;
+  late UserProvider _userProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _userProvider = context.watch();
+  }
 
   @override
   void initState() {
@@ -75,6 +83,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                       );
                     }
                     final userItem = snapshot.data!;
+                    _userProvider.updateLoginUser(userItem);
                     return _buildBody(userItem);
                   })
         ]),
@@ -116,6 +125,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
   }
 
   Widget _buildBody(UserItem userItem) {
+    _userProvider.updateLoginUser(userItem);
     return Column(
       children: [
         Container(

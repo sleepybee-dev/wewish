@@ -8,6 +8,7 @@ import 'package:wewish/firebase_options.dart';
 import 'package:wewish/home.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
 import 'package:wewish/provider/provider_registry.dart';
+import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/router.dart' as router;
 
 void main() async {
@@ -30,7 +31,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
             create: (BuildContext context) => NavigationProvider()),
         ChangeNotifierProvider(
-            create: (BuildContext context) => RegistryProvider())
+            create: (BuildContext context) => RegistryProvider()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => UserProvider()),
       ],
       child: MaterialApp(
           title: 'WeWish',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/provider/provider_registry.dart';
@@ -48,14 +49,11 @@ class _SearchPageState extends State<SearchPage> {
           ),
           CommonTextField(validationText: '아이디', hintText: '아이디를 입력하세요', controller: TextEditingController()), // Test
           Expanded(
-              child: Container(
-                color: Colors.black12,
-                child: ListView.builder(
-                  itemCount: _registryProvider.registryList.length,
-                    itemBuilder: (context, index) {
-                      return _buildListTile(_registryProvider.registryList[index]);
-                    }),
-              ))
+              child: ListView.builder(
+                itemCount: _registryProvider.registryList.length,
+                  itemBuilder: (context, index) {
+                    return _buildListTile(_registryProvider.registryList[index]);
+                  }))
         ],
       ),
     );
@@ -90,32 +88,35 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildProfile(UserItem user) {
-    return Row(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.amberAccent,
-            backgroundImage: NetworkImage(user.profileUrl),
-            radius: 18.0,
+    return SizedBox(
+      height: 80,
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: CircleAvatar(
+              backgroundColor: Colors.amberAccent,
+              backgroundImage: NetworkImage(user.profileUrl ?? defaultProfileUrl),
+              radius: 18.0,
+            ),
           ),
-        ),
-        Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(user.nickname),
-                Row(
-                  children: [
-                    _buildHashTagText(user.hashTag[0]),
-                    _buildHashTagText(user.hashTag[1]),
-                    _buildHashTagText(user.hashTag[2]),
-                  ],
-                ),
-
-              ],
-            ))
-      ],
+          Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(user.nickname),
+                  Expanded(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: user.hashTag.length,
+                        itemBuilder: (context, index) {
+                      return _buildHashTagText(user.hashTag[index]);
+                    }),
+                  )
+                ],
+              ))
+        ],
+      ),
     );
   }
 

@@ -40,7 +40,6 @@ class MetaParser {
       }
     }
 
-    Logger().d(data);
     return data;
   }
 

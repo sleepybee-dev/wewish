@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:textfield_tags/textfield_tags.dart';
+import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:path/path.dart';
 
@@ -115,7 +116,7 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                   )
                 : Image.network(
-                    widget.userItem.profileUrl,
+                    widget.userItem.profileUrl ?? defaultProfileUrl,
                     fit: BoxFit.cover,
                   ),
           ),
@@ -161,6 +162,7 @@ class _EditProfileState extends State<EditProfile> {
 
   Widget hashtagField() {
     return TextFieldTags(
+      initialTags: widget.userItem.hashTag,
       textSeparators: const [' ', ','],
       tagsStyler: TagsStyler(
           showHashtag: true,
@@ -207,13 +209,24 @@ class _EditProfileState extends State<EditProfile> {
         _isLoading = true;
       });
       if (_isValidUserData()) {
-        final profileUrl = await uploadPic(_photo!);
-        if (profileUrl != null) {
-          widget.userItem.profileUrl = profileUrl;
-          updateUser().then((value) {
-            Navigator.of(context).pop();
-          });
+        if (widget.userItem.profileUrl != null) {
+          // 원래 프사 안 바꿈
+        } else {
+          if (_photo == null) {
+            // 원래 프사 없는데 프사 선택 안함. 기본형으로 그냥 넣을까 고민중.
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('프로필 사진을 선택해 주세요.')));
+          } else {
+            final profileUrl = await uploadPic(_photo!);
+            if (profileUrl != null) {
+              widget.userItem.profileUrl = profileUrl;
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('사진 업로드 중 오류가 발생했어요.')));
+            }
+          }
         }
+        updateUser().then((value) {
+          Navigator.of(context).pop();
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('입력란을 채워주세요.')));
       }
@@ -224,6 +237,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   bool _isValidUserData() {
-    return _photo != null && widget.userItem.nickname.isNotEmpty && widget.userItem.nickname.length >= 2 && widget.userItem.hashTag.length >= 3;
+    return widget.userItem.nickname.length >= 2 && widget.userItem.hashTag.length >= 3;
   }
 }

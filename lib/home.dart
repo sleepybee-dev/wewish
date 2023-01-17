@@ -26,6 +26,8 @@ class _HomeState extends State<Home> {
   final MethodChannel _channel =
       const MethodChannel("com.codeinsongdo.wewish/add-wish");
 
+  late NavigationProvider _navigationProvider;
+  DateTime? _lastBackPressedTime;
   bool _onLoadingDynamicLinkData = false;
 
   @override
@@ -49,8 +51,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  late NavigationProvider _navigationProvider;
-  DateTime? _lastBackPressedTime;
 
   Widget _buildNavBody() {
     switch (_navigationProvider.currentPage) {
