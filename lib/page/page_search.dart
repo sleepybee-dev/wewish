@@ -6,6 +6,8 @@ import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/router.dart' as router;
 import 'package:wewish/ui/textfield_search.dart';
 
+import '../ui/textfield_common.dart';
+
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
 
@@ -44,6 +46,7 @@ class _SearchPageState extends State<SearchPage> {
               )),
             ],
           ),
+          CommonTextField(validationText: '닉네임',), // Test
           Expanded(
               child: Container(
                 color: Colors.black12,
@@ -101,12 +104,7 @@ class _SearchPageState extends State<SearchPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(user.nickname),
-                    Text("("+"id"+")"), // firebase에서 가져올 것
-                  ],
-                ),
+                Text(user.nickname),
                 Row(
                   children: [
                     _buildHashTagText(user.hashTag[0]),
@@ -122,6 +120,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _buildHashTagText(String hashtag) {
-   return Text("#"+hashtag, style: TextStyle(fontSize: 13,));
+   return Text('#$hashtag', style: const TextStyle(fontSize: 13,));
   }
 }
