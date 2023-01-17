@@ -5,6 +5,7 @@ import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/router.dart' as router;
+import 'package:wewish/ui/card_profile.dart';
 import 'package:wewish/ui/textfield_search.dart';
 
 import '../ui/textfield_common.dart';
@@ -75,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
       child: Container(
         color: Colors.white,
         child: ListTile(
-          title: _buildProfile(registryItem.user),
+          title: ProfileCard(registryItem.user),
           trailing: Text(registryItem.wishList.length.toString()),
           onTap: () => _goRegistryPage(registryItem),
         ),
@@ -87,40 +88,4 @@ class _SearchPageState extends State<SearchPage> {
     Navigator.pushNamed(context, router.wishlistPage, arguments: registryItem);
   }
 
-  Widget _buildProfile(UserItem user) {
-    return SizedBox(
-      height: 80,
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.amberAccent,
-              backgroundImage: NetworkImage(user.profileUrl ?? defaultProfileUrl),
-              radius: 18.0,
-            ),
-          ),
-          Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(user.nickname),
-                  Expanded(
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: user.hashTag.length,
-                        itemBuilder: (context, index) {
-                      return _buildHashTagText(user.hashTag[index]);
-                    }),
-                  )
-                ],
-              ))
-        ],
-      ),
-    );
-  }
-
-  _buildHashTagText(String hashtag) {
-   return Text('#$hashtag', style: const TextStyle(fontSize: 13,));
-  }
 }

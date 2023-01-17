@@ -9,6 +9,8 @@ import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/page/page_wish_reservation.dart';
 import 'package:wewish/provider/provider_user.dart';
+import 'package:wewish/ui/card_profile.dart';
+import 'package:wewish/ui/card_wish.dart';
 
 import '../util/meta_parser.dart';
 
@@ -67,47 +69,9 @@ class _WishListPageState extends State<WishListPage> {
   Widget _buildBody(RegistryItem registryItem) {
     return Column(
       children: [
-        _buildUserProfile(registryItem.user),
+        ProfileCard(registryItem.user),
         Expanded(child: _buildWishList(registryItem.wishList)),
       ],
-    );
-  }
-
-  Widget _buildUserProfile(UserItem user) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.amberAccent,
-              backgroundImage: NetworkImage(
-                  user.profileUrl ?? defaultProfileUrl),
-              radius: 18.0,
-            ),
-          ),
-          Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(user.nickname),
-                      //Text("("+"id"+")"), // id 없앰
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      _buildHashTagText(user.hashTag[0]),
-                      _buildHashTagText(user.hashTag[1]),
-                      _buildHashTagText(user.hashTag[2]),
-                    ],
-                  ),
-                ],
-              ))
-        ],
-      ),
     );
   }
 
@@ -119,106 +83,9 @@ class _WishListPageState extends State<WishListPage> {
   }
 
   Widget _buildWishTile(WishItem wishItem, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: () => _launchUrl(wishItem.url),
-        child: Card(
-          child: Column(
-            children: [
-              Container(
-                color: Color(0xff97d2f8),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(wishItem.productName)),
-                      Text(
-                        wishItem.price.toString(),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              ButtonBar(
-                alignment: MainAxisAlignment.end,
-                buttonPadding: EdgeInsets.only(left: 20),
-                children: [
-                  // 임시 로그인/로그아웃을 위한 버튼
-                  ElevatedButton(
-                    onPressed: () async {
-                      doReservation(index);
-                    }, // Navigate 필요
-                    child: Text('예약'),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: Text('선물하기'),
-                  ),
-                ],
-              ),
-              FutureBuilder<OpengraphData>(
-                  future: _fetchOpengraphData(wishItem.url),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting ||
-                        (snapshot.connectionState == ConnectionState.done &&
-                            snapshot.data == null)) {
-                      return Container(
-                        height: 120,
-                        color: Colors.grey,
-                      );
-                    }
-                    return _buildOpenGraphBox(snapshot.data!);
-                  })
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  _buildHashTagText(String hashtag) {
-    return Text("#" + hashtag,
-        style: TextStyle(
-          fontSize: 13,
-        ));
-  }
-
-  Widget _buildOpenGraphBox(OpengraphData opengraphData) {
-    return Column(
-      children: [
-        SizedBox(
-            height: 100,
-            child: Image.network(
-              opengraphData.image,
-              fit: BoxFit.cover,
-            )),
-        Text(
-          opengraphData.title,
-          style: TextStyle(fontWeight: FontWeight.bold),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        Text(opengraphData.description),
-        Text(
-          opengraphData.url,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-
-  Future<OpengraphData> _fetchOpengraphData(String url) async {
-    return await MetaParser.getOpenGraphData(url);
-  }
-
-  _launchUrl(String url) async {
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
+    return WishCard(wishItem,
+      onReservationPressed: ()=> doReservation(index),
+      onPresentPressed: (){},);
   }
 
   Future<RegistryItem> fetchRegistry() async {

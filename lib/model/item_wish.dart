@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wewish/model/item_category.dart';
+import 'package:wewish/model/item_user.dart';
 
 class WishItem {
   String productName = '';
@@ -12,7 +13,7 @@ class WishItem {
   bool isBooked = false;
   bool isChecked = false;
   bool isReceived = false;
-  String giver = '';
+  UserItem? actionUser;
 
   WishItem();
 
@@ -26,7 +27,9 @@ class WishItem {
         isBooked = json['reservation_status'] as bool,
         isChecked = json['check_status'] as bool,
         isReceived = json['gift_status'] as bool,
-        giver = json['giver'] as String,
+        actionUser = json['actionUser'] == null
+            ? null
+            : UserItem.fromJson(json['actionUser']),
         createdDate = json['createdDate'] == null
             ? DateTime.now()
             : (json['createdDate'] as Timestamp).toDate(),
@@ -38,7 +41,7 @@ class WishItem {
         'reservation_status': isBooked,
         'check_status': isChecked,
         'gift_status': isReceived,
-        'giver': giver,
+        'giver': actionUser,
         'name': productName,
         'url': url,
         'category': category.toJson(),

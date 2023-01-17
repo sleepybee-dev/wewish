@@ -9,6 +9,7 @@ import 'package:wewish/page/page_settings.dart';
 import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/router.dart' as router;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wewish/ui/card_profile.dart';
 
 class MyPage extends StatefulWidget {
   User user;
@@ -128,44 +129,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     _userProvider.updateLoginUser(userItem);
     return Column(
       children: [
-        Container(
-            margin: EdgeInsets.all(10),
-            child: Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(10),
-                  height: 80,
-                  width: 80,
-                  child: Image.network('${userItem.profileUrl}'),
-                ),
-                Container(
-                  margin: EdgeInsets.only(left: 50),
-                  child: Column(
-                    children: [
-                      Text(
-                        userItem.nickname,
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      Row(
-                        children: [
-                          Text('Hashtag : '),
-                          for (var i in userItem.hashTag)
-                            Text(i.toString() + ' ')
-                        ],
-                        // children: [
-                        //   Text('Hash Tag'),
-                        //   user_hashtag[0]!.forEach((element) {
-                        //     element != null
-                        //         ? Text(element)
-                        //         : Text('end');
-                        //   })
-                        // ],
-                      )
-                    ],
-                  ),
-                )
-              ],
-            )),
+        ProfileCard(userItem),
         Container(
           decoration: BoxDecoration(
             border: Border.all(),
@@ -209,7 +173,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                   return TabBarView(controller: _tabController, children: [
                     Container(
                       alignment: Alignment.center,
-                      child: WishList(registryItem.wishList,
+                      child: MyWishList(registryItem.wishList,
                           registryId: registryItem.registryId!),
                     ),
                     Container(
