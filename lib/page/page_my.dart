@@ -9,6 +9,7 @@ import 'package:wewish/page/page_settings.dart';
 import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/router.dart' as router;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/ui/card_profile.dart';
 
 class MyPage extends StatefulWidget {
@@ -127,62 +128,65 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
 
   Widget _buildBody(UserItem userItem) {
     _userProvider.updateLoginUser(userItem);
-    return Column(
-      children: [
-        ProfileCard(userItem),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
+    return CommonBody(
+      title: '마이페이지',
+      child: Column(
+        children: [
+          ProfileCard(userItem),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(),
+            ),
+            child: TabBar(
+              tabs: [
+                Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text("위시리스트", style: TextStyle(color: Colors.black))),
+                Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text("준 선물리스트", style: TextStyle(color: Colors.black)))
+              ],
+              unselectedLabelColor: Colors.black,
+              controller: _tabController,
+            ),
           ),
-          child: TabBar(
-            tabs: [
-              Container(
-                  height: 50,
-                  alignment: Alignment.center,
-                  child: Text("위시리스트", style: TextStyle(color: Colors.black))),
-              Container(
-                  height: 50,
-                  alignment: Alignment.center,
-                  child: Text("준 선물리스트", style: TextStyle(color: Colors.black)))
-            ],
-            unselectedLabelColor: Colors.black,
-            controller: _tabController,
-          ),
-        ),
-        Expanded(
-            child: FutureBuilder<RegistryItem?>(
-                future: _fetchRegistry(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text('문제가 발생했어요'),
-                    );
-                  }
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: Text('나의 위시를 추가해 보세요'),
-                    );
-                  }
-                  final RegistryItem registryItem = snapshot.data!;
+          Expanded(
+              child: FutureBuilder<RegistryItem?>(
+                  future: _fetchRegistry(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text('문제가 발생했어요'),
+                      );
+                    }
+                    if (!snapshot.hasData) {
+                      return Center(
+                        child: Text('나의 위시를 추가해 보세요'),
+                      );
+                    }
+                    final RegistryItem registryItem = snapshot.data!;
 
-                  return TabBarView(controller: _tabController, children: [
-                    Container(
-                      alignment: Alignment.center,
-                      child: MyWishList(registryItem.wishList,
-                          registryId: registryItem.registryId!),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: GiveList(registryItem.giveList),
-                    ),
-                  ]);
-                }))
-      ],
+                    return TabBarView(controller: _tabController, children: [
+                      Container(
+                        alignment: Alignment.center,
+                        child: MyWishList(registryItem.wishList,
+                            registryId: registryItem.registryId!),
+                      ),
+                      Container(
+                        alignment: Alignment.center,
+                        child: GiveList(registryItem.giveList),
+                      ),
+                    ]);
+                  }))
+        ],
+      ),
     );
   }
 

@@ -2,17 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_registry.dart';
-import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/page/page_wish_reservation.dart';
 import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/ui/card_profile.dart';
 import 'package:wewish/ui/card_wish.dart';
 
-import '../util/meta_parser.dart';
 
 class WishListPage extends StatefulWidget {
   final RegistryItem? registryItem;
