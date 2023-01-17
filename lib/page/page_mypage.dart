@@ -22,8 +22,11 @@ class _MyPageTempState extends State<MyPageTemp> {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             print(snapshot);
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator(),);
+            }
             if (!snapshot.hasData) {
-              return MyPageLogin();
+              return const MyPageLogin();
             } else {
               return MyPage(user:snapshot.data as User);
             }

@@ -16,7 +16,7 @@ class RegistryItem {
         wishList = (json['wishlist'] as List<dynamic>)
             .map((e) => WishItem.fromJson(e as Map<String, dynamic>))
             .toList(),
-        giveList = (json['givelist'] as List<dynamic>)
+        giveList = json['givelist'] == null ? [] : (json['givelist'] as List<dynamic>)
             .map((e) => GiveItem.fromJson(e as Map<String, dynamic>))
             .toList();
 
