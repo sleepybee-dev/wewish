@@ -2,84 +2,41 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:wewish/model/item_give.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GiveList extends StatefulWidget {
-  const GiveList({Key? key}) : super(key: key);
+  List<GiveItem> giveList;
+
+  GiveList(this.giveList, {Key? key}) : super(key: key);
 
   @override
   State<GiveList> createState() => _GiveListState();
 }
 
 class _GiveListState extends State<GiveList> {
-  final firestore = FirebaseFirestore.instance;
-  String? curRegistryId;
-
-  Future<RegistryItem> fetchRegistry() async {
-    QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance
-        .collection('registry')
-        .where('user.nickname', isEqualTo: '홍길동')
-        .withConverter<RegistryItem>(
-          fromFirestore: (snapshots, _) =>
-              RegistryItem.fromJson(snapshots.data()!),
-          toFirestore: (registry, _) => registry.toJson(),
-        )
-        .limit(1)
-        .get();
-
-    curRegistryId = snapshot.docs[0].id;
-    RegistryItem registryItem = snapshot.docs.map((e) => e.data()).toList()[0];
-    registryItem.registryId = curRegistryId;
-
-    return registryItem;
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  // 차후에는 firebase에서 데이터 받아서 리스트 생성
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<RegistryItem>(
-        future: fetchRegistry(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData == false) {
-            return Text('loading');
-          } else {
-            RegistryItem registryItem = snapshot.data;
-            print(registryItem);
-            return SingleChildScrollView(
-                child: Container(
-              child: Column(
-                children: [
-                  _buildShareBar(),
-                  Column(
-                      children: registryItem.giveList.map((i) {
-                    // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
-                    return SizedBox(
-                      width: 400,
-                      height: 180,
-                      child: i.isBooked == true // 예약 상태
-                          ? _buildReservationStatusSizebox(i)
-                          // 예약 상태가 아님
-                          : i.isChecked == true // 선물 받음 체크 한 상태
-                              ? _buildCheckStatusSizebox(i)
-                              // 선물 받음 체크 안한 상태
-                              : i.isSended == true
-                                  ? _buildBeforeCheckStatusSizebox(i)
-                                  : _buildAnyStatusSizebox(i),
-                    );
-                  }).toList()),
-                ],
-              ),
-            ));
-          }
-        });
+    return SingleChildScrollView(
+                child: Column(
+                    children: widget.giveList.map((i) {
+                  // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
+                  return SizedBox(
+                    width: 400,
+                    height: 180,
+                    child: i.isBooked == true // 예약 상태
+                        ? _buildReservationStatusSizebox(i)
+                        // 예약 상태가 아님
+                        : i.isChecked == true // 선물 받음 체크 한 상태
+                            ? _buildCheckStatusSizebox(i)
+                            // 선물 받음 체크 안한 상태
+                            : i.isSended == true
+                                ? _buildBeforeCheckStatusSizebox(i)
+                                : _buildAnyStatusSizebox(i),
+                  );
+                }).toList()));
   }
 
   Widget _buildProductImgSizebox(String url) {
@@ -212,49 +169,5 @@ class _GiveListState extends State<GiveList> {
         ],
       ),
     );
-  }
-
-  Widget _buildShareBar() {
-    return Container(
-      width: 350,
-      height: 50,
-      margin: EdgeInsets.only(right: 30),
-      alignment: Alignment.center,
-      child: OutlinedButton(
-          onPressed: () => doShare(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("메세지와 함께 공유하기"),
-              Icon(Icons.share),
-            ],
-          ),
-          style: OutlinedButton.styleFrom(
-            primary: Colors.black,
-          )),
-    );
-  }
-
-  doShare() {
-    if (curRegistryId == null) {
-      return;
-    }
-    final dynamicLinkParams = DynamicLinkParameters(
-        uriPrefix: "https://wewish.page.link/",
-        link: Uri.parse("https://wewish.com/wishlist?rId=$curRegistryId"),
-        androidParameters:
-            const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
-        iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
-        socialMetaTagParameters:
-            const SocialMetaTagParameters(title: '홍길동님의 위시리스트'));
-    FirebaseDynamicLinks.instance
-        .buildShortLink(dynamicLinkParams)
-        .then((value) {
-      FlutterShare.share(
-        title: '위위시',
-        text: '홍길동님의 선물리스트',
-        linkUrl: value.shortUrl.toString(),
-      );
-    });
   }
 }

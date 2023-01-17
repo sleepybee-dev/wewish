@@ -4,62 +4,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wewish/model/item_wish.dart';
 
 class WishList extends StatefulWidget {
-  const WishList({Key? key}) : super(key: key);
+  List<WishItem> wishList;
+  String registryId;
+
+  WishList(this.wishList, {Key? key, required this.registryId}) : super(key: key);
 
   @override
   State<WishList> createState() => _WishListState();
 }
 
 class _WishListState extends State<WishList> {
-  final firestore = FirebaseFirestore.instance;
-  String? curRegistryId;
-
-  Future<RegistryItem> fetchRegistry() async {
-    QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance
-        .collection('registry')
-        .where('user.nickname', isEqualTo: '홍길동')
-        .withConverter<RegistryItem>(
-          fromFirestore: (snapshots, _) =>
-              RegistryItem.fromJson(snapshots.data()!),
-          toFirestore: (registry, _) => registry.toJson(),
-        )
-        .limit(1)
-        .get();
-
-    curRegistryId = snapshot.docs[0].id;
-    RegistryItem registryItem = snapshot.docs.map((e) => e.data()).toList()[0];
-    registryItem.registryId = curRegistryId;
-
-    return registryItem;
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  // 차후에는 firebase에서 데이터 받아서 리스트 생성
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<RegistryItem>(
-        future: fetchRegistry(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData == false) {
-            return Text('loading');
-          } else {
-            RegistryItem registryItem = snapshot.data;
-            print(registryItem);
-            return SingleChildScrollView(
+    return SingleChildScrollView(
                 child: Container(
               child: Column(
                 children: [
                   _buildShareBar(),
                   Column(
-                      children: registryItem.wishList.map((i) {
+                      children: widget.wishList.map((i) {
                     // reservation과 check의 bool 값에 따라서 분기를 나누려한다.
                     return SizedBox(
                       width: 400,
@@ -78,8 +45,6 @@ class _WishListState extends State<WishList> {
                 ],
               ),
             ));
-          }
-        });
   }
 
   Widget _buildProductImgSizebox(String url) {
@@ -242,12 +207,9 @@ class _WishListState extends State<WishList> {
   }
 
   doShare() {
-    if (curRegistryId == null) {
-      return;
-    }
     final dynamicLinkParams = DynamicLinkParameters(
       uriPrefix: "https://wewish.page.link/",
-      link: Uri.parse("https://wewish.com/wishlist?rId=$curRegistryId"),
+      link: Uri.parse("https://wewish.com/wishlist?rId=${widget.registryId}"),
       androidParameters:
           const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
       iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
