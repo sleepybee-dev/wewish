@@ -311,12 +311,6 @@ class _WishEditPageState extends State<WishEditPage>
     updateRegistry(wishItem);
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
   void _doCheckClipboard() {
     _fetchClipboardData().then((clipboardText) {
       if (clipboardText != null) {
@@ -418,5 +412,14 @@ class _WishEditPageState extends State<WishEditPage>
 
   bool isValidInput() {
     return _urlEditingController.text.isNotEmpty && _nameEditingController.text.isNotEmpty && _priceEditingController.text.isNotEmpty && _curCategoryItem.categoryId != -1;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _priceEditingController.dispose();
+    _urlEditingController.dispose();
+    _nameEditingController.dispose();
+    super.dispose();
   }
 }

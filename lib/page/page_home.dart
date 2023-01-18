@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
+import 'package:wewish/ui/textfield_search.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,45 +15,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Center(
-      child: SizedBox(
-        height: 250,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const Text('이름을 검색하여\n다른 사람들의 위시리스트를\n확인할 수 있어요',
-                textAlign: TextAlign.center, style: TextStyle(fontSize: 30)),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 30, 30, 0),
-              child: GestureDetector(
-                onTap: () => goSearchPage(),
-                child: Container(
-                  height: 50,
-                  child: Row(
-                    children: [
-                      IconButton(
-                          onPressed: () {}, icon: const Icon(Icons.search)),
-                      Spacer(),
-                    ],
+        child: Padding(
+          padding: const EdgeInsets.only(top:120, left: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('누구의 위시리스트를\n보고 싶으신가요?', style: Theme.of(context).textTheme.headlineMedium),
+              Padding(
+                padding: const EdgeInsets.only(top:40.0),
+                child: GestureDetector(
+                  onTap: () => goSearchPage(),
+                  child: SearchTextField(
+                    enabled: false,
+                    onPressed: () {  },)
                   ),
-                  decoration: BoxDecoration(
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor.withOpacity(0.3),
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                    borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-                    color: Colors.grey[300],
-                  ),
-                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    ));
+            ],
+          ),
+        ));
   }
 
   goSearchPage() {

@@ -150,6 +150,7 @@ class _WishCardState extends State<WishCard> {
         }
         break;
     }
+
     return Positioned(
         bottom: 0,
         left: 0,

@@ -30,16 +30,14 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      appBar: AppBar(title: Text('search'),),
       body: Column(
         children: [
           Row(
             children: [
               IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
               Expanded(child: SearchTextField(
-                  autofocus: true,
+                  autofocus: false,
                   hintText: '이름을 입력하세요',
                 onChanged: (value) {
                   _keyword = value;
@@ -48,7 +46,6 @@ class _SearchPageState extends State<SearchPage> {
               )),
             ],
           ),
-          CommonTextField(validationText: '아이디', hintText: '아이디를 입력하세요', controller: TextEditingController()), // Test
           Expanded(
               child: ListView.builder(
                 itemCount: _registryProvider.registryList.length,
