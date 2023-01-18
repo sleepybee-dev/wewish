@@ -34,64 +34,56 @@ class MyStatelessWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          OutlinedButton(
+          _buildSettingButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EditProfile(
+                    builder: (context) =>
+                        EditProfile(
                           userItem: userItem,
                         )),
               );
             },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-              // side: BorderSide(color: Colors.black87, width: 2.0)
-            ),
-            child: const Text('프로필 수정'),
+            label: '프로필 수정',
           ),
-          OutlinedButton(
+          _buildSettingButton(
             onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-              // side: BorderSide(color: Colors.black87, width: 2.0)
-            ),
-            child: const Text('알림 설정'),
+            label: '알림 설정',
           ),
-          OutlinedButton(
+          _buildSettingButton(
             onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-              // side: BorderSide(color: Colors.black87, width: 2.0)
-            ),
-            child: const Text('개인정보 처리 방침'),
+            label: '개인정보 처리 방침',
           ),
-          OutlinedButton(
+          _buildSettingButton(
             onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-              // side: BorderSide(color: Colors.black87, width: 2.0)
-            ),
-            child: const Text('회원 탈퇴'),
+            label: '회원 탈퇴',
           ),
-          OutlinedButton(
+          _buildSettingButton(
             onPressed: () {
               final viewModel = SocialLoginViewModel(KakaoLogin());
               viewModel.logout().then((value) {
                 Navigator.pop(context);
               });
             },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              minimumSize: const Size(double.infinity, 50), //버튼크기 지정
-              // side: BorderSide(color: Colors.black87, width: 2.0)
-            ),
-            child: const Text('로그아웃'),
+            label: '로그아웃',
           ),
         ]);
+  }
+
+  Widget _buildSettingButton(
+      {required String label, required VoidCallback onPressed}) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        alignment: Alignment.centerLeft,
+        width: double.infinity,
+        height: 56,
+        child: Padding(
+          padding: const EdgeInsets.only(left:20.0),
+          child: Text(label, textAlign: TextAlign.left, style: TextStyle(fontSize: 16),),
+        ),
+        ),
+    );
   }
 }

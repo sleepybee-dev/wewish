@@ -7,6 +7,7 @@ import 'package:sign_in_button/sign_in_button.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/kakao_login_test.dart';
+import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/viewmodel/viewmodel_social_login.dart';
 import 'package:wewish/page/page_settings.dart';
 
@@ -25,75 +26,37 @@ class _MyPageLoginState extends State<MyPageLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Stack(
-        children: [
-          _isLoading ? Center(child: CircularProgressIndicator()) : Container(),
-          Column(
-          children: [
-            Column(
+    return CommonBody(
+      child: Center(
+        child: Stack(children: [
+          _isLoading ? const Center(child: CircularProgressIndicator()) : Container(),
+          Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('로그인하여',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-                Text('나만의 위시리스트를',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-                Text('만들어 주세요',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+                Text('로그인하여\n나만의 위시리스트를\n만들어 주세요',
+                    style: Theme.of(context).textTheme.headlineMedium),
+                // Container(height: 150, child: Text('photo')),
+                _buildKakaoLoginButton(),
+                Platform.isIOS ? _buildAppleLoginButton() : Container(),
               ],
             ),
-            SizedBox(height: 50),
-            // Container(height: 150, child: Text('photo')),
-            Column(
-              children: [
-                Container(
-                  width: 220,
-                  child: OutlinedButton(
-                    onPressed: () => {},
-                    child: Text(
-                      '이메일로 회원가입하기',
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w600),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                        backgroundColor: Color(0xFFE0E0E0)),
-                  ),
-                ),
-                Container(
-                  width: 220,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      viewModel.login().then((value) {
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      });
-                    },
-                    child: Text(
-                      '카카오 로그인',
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w600),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                        backgroundColor: Color(0xfffee500)),
-                  ),
-                ),
-                Platform.isIOS ? _buildAppleLoginButton() : Container()
-              ],
-            ),
-          ],
-        ),]
+          ),
+        ]),
       ),
     );
   }
 
   Widget _buildAppleLoginButton() {
-    return SignInButton(
-      Buttons.apple,
-      text: 'Sign up with Apple',
-      onPressed: signInWithApple,
+    return SizedBox(
+      height: 56,
+      child: SignInButton(
+        Buttons.apple,
+        text: 'Sign up with Apple',
+        onPressed: signInWithApple,
+      ),
     );
   }
 
@@ -111,5 +74,27 @@ class _MyPageLoginState extends State<MyPageLogin> {
     );
 
     return await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+  }
+
+  Widget _buildKakaoLoginButton() {
+    return SizedBox(
+      height: 56,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _isLoading = true;
+          });
+          viewModel.login().then((value) {
+            setState(() {
+              _isLoading = false;
+            });
+          });
+        },
+        child: const Image(
+          image: AssetImage(
+              'assets/images/kakao_login_large_wide.png'), fit: BoxFit.fitWidth,
+        ),
+      ),
+    );
   }
 }

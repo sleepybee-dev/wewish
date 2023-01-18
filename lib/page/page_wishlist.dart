@@ -10,9 +10,9 @@ import 'package:wewish/ui/card_profile.dart';
 import 'package:wewish/ui/card_wish.dart';
 
 class WishListPage extends StatefulWidget {
-  final RegistryItem? registryItem;
+  final RegistryItem registryItem;
 
-  const WishListPage({Key? key, this.registryItem}) : super(key: key);
+  const WishListPage({Key? key, required this.registryItem}) : super(key: key);
 
   @override
   State<WishListPage> createState() => _WishListPageState();
@@ -42,21 +42,7 @@ class _WishListPageState extends State<WishListPage> {
             title: Text(
               '위시리스트',
             )),
-        body: widget.registryItem == null
-            ? FutureBuilder<RegistryItem>(
-                future: fetchRegistry(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (!snapshot.hasData || snapshot.hasError) {
-                    return Text('위시리스트 가져오기 실패');
-                  }
-                  RegistryItem registryItem = snapshot.data!;
-                  return _buildBody(registryItem);
-                },
-              )
-            : _buildBody(widget.registryItem!),
+        body: _buildBody(widget.registryItem),
       ),
     );
   }
@@ -82,34 +68,17 @@ class _WishListPageState extends State<WishListPage> {
       wishItem,
       onReservationPressed: () => doReservation(index),
       onPresentPressed: () {},
+      showActionBar: widget.registryItem.user.uId != _userProvider.user!.uId!,
     );
-  }
-
-  Future<RegistryItem> fetchRegistry() async {
-    QuerySnapshot<RegistryItem>? snapshot = await registryCollection
-        .withConverter<RegistryItem>(
-          fromFirestore: (snapshots, _) =>
-              RegistryItem.fromJson(snapshots.data()!),
-          toFirestore: (registry, _) => registry.toJson(),
-        )
-        .limit(1)
-        .get();
-
-    curRegistryId = snapshot.docs[0].id;
-    // 현재 레지스트리를 가리키도록 수정 필요 -> 완?
-    RegistryItem registryItem = snapshot.docs.map((e) => e.data()).toList()[0];
-    registryItem.registryId = curRegistryId;
-
-    return registryItem;
   }
 
   void doReservation(int index) async {
     if (_userProvider.user != null) {
       final ref = await FirebaseFirestore.instance
           .collection('registry')
-          .doc(widget.registryItem!.registryId!);
-      List<WishItem> originList = widget.registryItem!.wishList;
-      var tempUser = widget.registryItem!.user;
+          .doc(widget.registryItem.registryId!);
+      List<WishItem> originList = widget.registryItem.wishList;
+      var tempUser = widget.registryItem.user;
 
       List<WishItem> after = originList;
       print(after[index].productName);
