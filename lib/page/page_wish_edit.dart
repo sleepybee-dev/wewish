@@ -92,17 +92,14 @@ class _WishEditPageState extends State<WishEditPage>
   Widget _buildBody() {
     return Stack(children: [
       _onLoading
-          ? Center(
-              child: Container(
-              child: const CircularProgressIndicator(),
-            ))
+          ? const Center(child: CircularProgressIndicator())
           : Container(),
       Column(
         children: [
           _buildOgDataCard(),
           Row(
             children: [
-              const Text('url'),
+              _buildLabel('url'),
               Expanded(
                   child: CommonTextField(
                 controller: _urlEditingController,
@@ -112,7 +109,7 @@ class _WishEditPageState extends State<WishEditPage>
           ),
           Row(
             children: [
-              const Text('상품명'),
+              _buildLabel('상품명'),
               Expanded(
                   child: CommonTextField(
                 controller: _nameEditingController,
@@ -121,7 +118,7 @@ class _WishEditPageState extends State<WishEditPage>
           ),
           Row(
             children: [
-              const Text('상품가격'),
+              _buildLabel('상품가격'),
               Expanded(
                   child: CommonTextField(
                 keyboardType: const TextInputType.numberWithOptions(),
@@ -129,29 +126,43 @@ class _WishEditPageState extends State<WishEditPage>
               ))
             ],
           ),
-          TextButton(
-              onPressed: _showCategoryBottomSheet,
+          GestureDetector(
+              onTap: _showCategoryBottomSheet,
               child: Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  height: 56,
-                  child: Text(
-                    _curCategoryItem.category.isEmpty
-                        ? '카테고리 선택'
-                        : _curCategoryItem.category,
-                    style: TextStyle(color: Theme.of(context).primaryColor),
-                  ))),
-          TextButton(
-              onPressed: () => _curCategoryMap != null
-                  ? _showCategoryPart1Sheet(_curCategoryMap!)
-                  : {},
-              child: Text(_curCategoryItem.part1)),
-          TextButton(
-              onPressed: () => _curCategoryMap != null
-                  ? _showCategoryPart2Sheet(
-                      _curCategoryMap![_curCategoryItem.part1])
-                  : {},
-              child: Text(_curCategoryItem.part2)),
+                padding: EdgeInsets.only(left:16, right: 16),
+                height: 48,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _curCategoryItem.category.isEmpty
+                            ? '카테고리 선택'
+                            : _curCategoryItem.category, style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Icon(Icons.chevron_right_sharp, color: Theme.of(context).primaryColor,)
+                  ],
+                ),
+              )),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: TextButton(
+                onPressed: () => _curCategoryMap != null
+                    ? _showCategoryPart1Sheet(_curCategoryMap!)
+                    : {},
+                child: Text(_curCategoryItem.part1,)),
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: TextButton(
+                onPressed: () => _curCategoryMap != null
+                    ? _showCategoryPart2Sheet(
+                        _curCategoryMap![_curCategoryItem.part1])
+                    : {},
+                child: Text(_curCategoryItem.part2)),
+          ),
           PrimaryTextButton(onPressed: () => _addWish(), label: '위시 추가')
         ],
       ),
@@ -167,15 +178,18 @@ class _WishEditPageState extends State<WishEditPage>
             itemCount: Category.values.length,
             itemBuilder: (context, index) {
               Category categoryItem = Category.values[index];
-              return TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _curCategoryItem.category = categoryItem.label;
-                    });
-                    Navigator.pop(context);
-                    _fetchCategoryPart(categoryItem);
-                  },
-                  child: Text(categoryItem.label));
+              return SizedBox(
+                width: double.infinity,
+                child: MaterialButton(
+                    onPressed: () {
+                      setState(() {
+                        _curCategoryItem.category = categoryItem.label;
+                      });
+                      Navigator.pop(context);
+                      _fetchCategoryPart(categoryItem);
+                    },
+                    child: Text(categoryItem.label)),
+              );
             },
           );
         });
@@ -256,7 +270,7 @@ class _WishEditPageState extends State<WishEditPage>
                   child: Container(
                       alignment: Alignment.centerLeft,
                       width: double.infinity,
-                      height: 40,
+                      height: 48,
                       child: Text(part2List[index].categoryPart2)),
                 );
               });
@@ -283,8 +297,9 @@ class _WishEditPageState extends State<WishEditPage>
                     _showCategoryPart2Sheet(categoryMap[keys[index]]);
                   },
                   child: Container(
+                      width: double.infinity,
                       alignment: Alignment.centerLeft,
-                      height: 40,
+                      height: 48,
                       child: Text(keys[index])),
                 );
               });
@@ -388,7 +403,7 @@ class _WishEditPageState extends State<WishEditPage>
         ? Container(
             color: Colors.black12,
             height: 120,
-            child: const Center(child: Text('이 링크는 미리보기 정보가 존재하지 않습니다.')),
+            child: const Center(child: Text('미리보기 정보가 존재하지 않습니다.')),
           )
         : Row(children: [
             SizedBox(
@@ -428,5 +443,12 @@ class _WishEditPageState extends State<WishEditPage>
     _urlEditingController.dispose();
     _nameEditingController.dispose();
     super.dispose();
+  }
+
+  Widget _buildLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: SizedBox(width: 80, child: Text(label)),
+    );
   }
 }
