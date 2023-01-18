@@ -85,18 +85,20 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-#  fonts:
-#    - family: AppleSDGothicNeo
-#      fonts:
-#        - asset: fonts/AppleSDGothicNeoL.ttf
-#        - asset: fonts/AppleSDGothicNeoB.ttf
-#          weight: 700
-#        - asset: fonts/AppleSDGothicNeoEB.ttf
-#          weight: 800
-#        - asset: fonts/AppleSDGothicNeoH.ttf
-#          weight: 900
-#        - asset: fonts/AppleSDGothicNeoL.ttf
-#          weight: 500
+  fonts:
+    - family: AppleSDGothicNeo
+      fonts:
+        - asset: fonts/AppleSDGothicNeoR.ttf
+        - asset: fonts/AppleSDGothicNeoB.ttf
+          weight: 700
+        - asset: fonts/AppleSDGothicNeoEB.ttf
+          weight: 800
+        - asset: fonts/AppleSDGothicNeoH.ttf
+          weight: 900
+        - asset: fonts/AppleSDGothicNeoM.ttf
+          weight: 500
+        - asset: fonts/AppleSDGothicNeoL.ttf
+          weight: 300
 
 
 
