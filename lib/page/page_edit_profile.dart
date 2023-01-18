@@ -8,6 +8,7 @@ import 'package:textfield_tags/textfield_tags.dart';
 import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:path/path.dart';
+import 'package:wewish/ui/textfield_common.dart';
 
 class EditProfile extends StatefulWidget {
   UserItem userItem;
@@ -140,24 +141,11 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Widget nameField() {
-    return TextFormField(
+    return CommonTextField(
       controller: _nameController,
       onEditingComplete: () {
         widget.userItem.nickname = _nameController.text;
       },
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.lightBlue,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.lightBlue,
-            width: 1.0,
-          ),
-        ),
-      ),
     );
   }
 

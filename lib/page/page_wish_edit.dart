@@ -12,6 +12,7 @@ import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
 import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/ui/button_text_primary.dart';
+import 'package:wewish/ui/textfield_common.dart';
 import 'package:wewish/util/category_parser.dart';
 import 'package:wewish/util/meta_parser.dart';
 import 'package:wewish/router.dart' as router;
@@ -63,8 +64,6 @@ class _WishEditPageState extends State<WishEditPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _userProvider = context.watch<UserProvider>();
-
-
   }
 
   @override
@@ -85,8 +84,9 @@ class _WishEditPageState extends State<WishEditPage>
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
-            appBar: AppBar(title: const Text('')), body: _buildBody()));
+            resizeToAvoidBottomInset: false,
+            appBar: AppBar(title: const Text('')),
+            body: _buildBody()));
   }
 
   Widget _buildBody() {
@@ -104,10 +104,9 @@ class _WishEditPageState extends State<WishEditPage>
             children: [
               const Text('url'),
               Expanded(
-                  child: TextField(
+                  child: CommonTextField(
                 controller: _urlEditingController,
-                    onEditingComplete: ()=>
-                        _parseUrl(_urlEditingController.text),
+                onEditingComplete: () => _parseUrl(_urlEditingController.text),
               ))
             ],
           ),
@@ -115,7 +114,7 @@ class _WishEditPageState extends State<WishEditPage>
             children: [
               const Text('상품명'),
               Expanded(
-                  child: TextField(
+                  child: CommonTextField(
                 controller: _nameEditingController,
               ))
             ],
@@ -124,7 +123,7 @@ class _WishEditPageState extends State<WishEditPage>
             children: [
               const Text('상품가격'),
               Expanded(
-                  child: TextField(
+                  child: CommonTextField(
                 keyboardType: const TextInputType.numberWithOptions(),
                 controller: _priceEditingController,
               ))
@@ -294,7 +293,8 @@ class _WishEditPageState extends State<WishEditPage>
 
   _addWish() {
     if (!isValidInput()) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('입력칸을 채워주세요.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('입력칸을 채워주세요.')));
       return;
     }
 
@@ -327,26 +327,29 @@ class _WishEditPageState extends State<WishEditPage>
         .collection('registry')
         .where('user.uId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .limit(1)
-        .get().catchError((error) {
-          setState(() {
-            _onLoading = false;
-          });
+        .get()
+        .catchError((error) {
+      setState(() {
+        _onLoading = false;
+      });
     });
 
     if (registrySnapshot.docs.isEmpty) {
       // 유저가 레지스트리를 만든적이 없어서 유저의 정보를 가져와서 레지스트리에 같이 붙여줘야함.
-      final userSnapshot = await FirebaseFirestore.instance.collection('user')
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('user')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .withConverter<UserItem>(
-          fromFirestore: (snapshots, _) => UserItem.fromJson(snapshots.data()!),
-          toFirestore: (user, _) => user.toJson(),)
+            fromFirestore: (snapshots, _) =>
+                UserItem.fromJson(snapshots.data()!),
+            toFirestore: (user, _) => user.toJson(),
+          )
           .get();
 
       if (userSnapshot.data() != null) {
         UserItem userItem = userSnapshot.data()!;
         _userProvider.updateLoginUser(userItem);
-        FirebaseFirestore.instance.collection('registry')
-        .add({
+        FirebaseFirestore.instance.collection('registry').add({
           'user': userItem.toJson(),
           'wishlist': [wishItem.toJson()]
         }).then((value) {
@@ -356,7 +359,6 @@ class _WishEditPageState extends State<WishEditPage>
           Navigator.pop(context);
         });
       }
-
     } else {
       await registrySnapshot.docs[0].reference.update({
         'wishlist': FieldValue.arrayUnion([wishItem.toJson()])
@@ -390,28 +392,33 @@ class _WishEditPageState extends State<WishEditPage>
           )
         : Row(children: [
             SizedBox(
-              width: 120,
+                width: 120,
                 height: 120,
                 child: Image.network(opengraphData!.image)),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          Text(opengraphData!.title),
-          Text(opengraphData!.description)
-        ],),
-      )
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(opengraphData!.title),
+                  Text(opengraphData!.description)
+                ],
+              ),
+            )
           ]);
   }
 
   void _goLoginPage() {
     NavigationProvider navigationProvider = context.watch<NavigationProvider>();
     navigationProvider.updateCurrentTab(MainTab.myPage);
-    Navigator.of(context).popAndPushNamed(router.home, arguments: MainTab.myPage);
+    Navigator.of(context)
+        .popAndPushNamed(router.home, arguments: MainTab.myPage);
   }
 
   bool isValidInput() {
-    return _urlEditingController.text.isNotEmpty && _nameEditingController.text.isNotEmpty && _priceEditingController.text.isNotEmpty && _curCategoryItem.categoryId != -1;
+    return _urlEditingController.text.isNotEmpty &&
+        _nameEditingController.text.isNotEmpty &&
+        _priceEditingController.text.isNotEmpty &&
+        _curCategoryItem.categoryId != -1;
   }
 
   @override

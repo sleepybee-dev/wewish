@@ -4,20 +4,27 @@ class CommonBody extends StatelessWidget {
   Widget child;
   String? title;
   bool showBackButton;
+  VoidCallback? onBackPressed;
+  Widget? rightButton;
 
   CommonBody(
       {Key? key,
         required this.child,
         this.title,
-        this.showBackButton = false})
+        this.showBackButton = false,
+        this.onBackPressed,
+        this.rightButton
+      })
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final statusBarHeight = MediaQuery.of(context).viewPadding.top;
+    return Padding(
+      padding: EdgeInsets.only(top: statusBarHeight),
       child: Column(
         children: [
-          _buildTitle(context),
+          hasTitleBar() ? _buildTitle(context) : Container(),
           Expanded(child: child),
         ],
       ),
@@ -30,12 +37,18 @@ class CommonBody extends StatelessWidget {
       child: SizedBox(
         height: 60,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            showBackButton ? IconButton(onPressed: (){}, icon: const Icon(Icons.arrow_back_ios_new)): Container(),
-            title != null ? Expanded(child: Text(title!, style: Theme.of(context).textTheme.headlineMedium,)) : Container(),
+            showBackButton ? IconButton(onPressed: onBackPressed, icon: const Icon(Icons.arrow_back_ios_new)): Container(),
+            title != null ? Expanded(child: Text(title!, style: Theme.of(context).textTheme.headlineMedium,)) : Expanded(child: Container()),
+            rightButton != null? rightButton! : Container()
           ],
         ),
       ),
     );
+  }
+
+  bool hasTitleBar() {
+    return showBackButton || title != null || rightButton != null;
   }
 }

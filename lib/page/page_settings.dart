@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/kakao_login_test.dart';
 import 'package:wewish/viewmodel/viewmodel_social_login.dart';
@@ -47,12 +49,12 @@ class MyStatelessWidget extends StatelessWidget {
             },
             label: '프로필 수정',
           ),
+          // _buildSettingButton(
+          //   onPressed: () {},
+          //   label: '알림 설정',
+          // ),
           _buildSettingButton(
-            onPressed: () {},
-            label: '알림 설정',
-          ),
-          _buildSettingButton(
-            onPressed: () {},
+            onPressed: () => _launchUrl(privacyPolicyUrl),
             label: '개인정보 처리 방침',
           ),
           _buildSettingButton(
@@ -85,5 +87,11 @@ class MyStatelessWidget extends StatelessWidget {
         ),
         ),
     );
+  }
+
+  _launchUrl(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    }
   }
 }

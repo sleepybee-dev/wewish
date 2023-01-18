@@ -5,6 +5,7 @@ import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/provider/provider_registry.dart';
 import 'package:wewish/router.dart' as router;
+import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/ui/card_profile.dart';
 import 'package:wewish/ui/textfield_search.dart';
 
@@ -31,28 +32,30 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Row(
-            children: [
-              IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
-              Expanded(child: SearchTextField(
-                  autofocus: false,
-                  hintText: '이름을 입력하세요',
-                onChanged: (value) {
-                  _keyword = value;
-                },
-                onPressed: () => _doSearch()
-              )),
-            ],
-          ),
-          Expanded(
-              child: ListView.builder(
-                itemCount: _registryProvider.registryList.length,
-                  itemBuilder: (context, index) {
-                    return _buildListTile(_registryProvider.registryList[index]);
-                  }))
-        ],
+      body: CommonBody(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
+                Expanded(child: SearchTextField(
+                    autofocus: false,
+                    hintText: '이름을 입력하세요',
+                  onChanged: (value) {
+                    _keyword = value;
+                  },
+                  onPressed: () => _doSearch()
+                )),
+              ],
+            ),
+            Expanded(
+                child: ListView.builder(
+                  itemCount: _registryProvider.registryList.length,
+                    itemBuilder: (context, index) {
+                      return _buildListTile(_registryProvider.registryList[index]);
+                    }))
+          ],
+        ),
       ),
     );
   }
