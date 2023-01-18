@@ -152,39 +152,40 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
               controller: _tabController,
             ),
           ),
-          Expanded(
-              child: FutureBuilder<RegistryItem?>(
-                  future: _fetchRegistry(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text('문제가 발생했어요'),
-                      );
-                    }
-                    if (!snapshot.hasData) {
-                      return Center(
-                        child: Text('나의 위시를 추가해 보세요'),
-                      );
-                    }
-                    final RegistryItem registryItem = snapshot.data!;
+          FutureBuilder<RegistryItem?>(
+              future: _fetchRegistry(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('문제가 발생했어요'),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: Text('나의 위시를 추가해 보세요'),
+                  );
+                }
+                final RegistryItem registryItem = snapshot.data!;
 
-                    return TabBarView(controller: _tabController, children: [
-                      Container(
-                        alignment: Alignment.center,
-                        child: MyWishList(registryItem.wishList,
-                            registryId: registryItem.registryId!),
-                      ),
-                      Container(
-                        alignment: Alignment.center,
-                        child: GiveList(registryItem.giveList),
-                      ),
-                    ]);
-                  }))
+                return Expanded(
+                  child: TabBarView(controller: _tabController, children: [
+                    Container(
+                      alignment: Alignment.center,
+                      child: MyWishList(registryItem.wishList,
+                          registryId: registryItem.registryId!),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      child: GiveList(registryItem.giveList),
+                    ),
+                  ]),
+                );
+              })
         ],
       ),
     );

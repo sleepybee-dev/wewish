@@ -1,8 +1,6 @@
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_share/flutter_share.dart';
-import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/ui/card_wish.dart';
 
@@ -20,21 +18,20 @@ class _MyWishListState extends State<MyWishList> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildShareBar(),
-                    Expanded(child:
-                    ListView.builder(
-                      itemCount: widget.wishList.length,
-                        itemBuilder: (context, index)
-                    => WishCard(widget.wishList[index],
-                        showStatus: true,
-                        showActionBar: false,
-                        onReservationPressed: (){},
-                        onPresentPressed: (){}))),
-                  ],
-                ));
+    return Column(
+      children: [
+        _buildShareBar(),
+        Expanded(child:
+        ListView.builder(
+          itemCount: widget.wishList.length,
+            itemBuilder: (context, index)
+        => WishCard(widget.wishList[index],
+            showStatus: true,
+            showActionBar: false,
+            onReservationPressed: (){},
+            onPresentPressed: (){}))),
+      ],
+    );
   }
 
   Widget _buildShareBar() {
@@ -66,13 +63,13 @@ class _MyWishListState extends State<MyWishList> {
           const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
       iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
       socialMetaTagParameters: const SocialMetaTagParameters(
-        title: '홍길동님의 위시리스트'
+        title: '님의 위시리스트'
       )
     );
     FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams).then((value) {
       FlutterShare.share(
         title: '위위시',
-        text: '홍길동님의 선물리스트',
+        text: '님의 선물리스트',
         linkUrl: value.shortUrl.toString(),
       );
     });

@@ -62,7 +62,6 @@ class MyApp extends StatelessWidget {
         Flexible(
           flex: 1,
           child: Container(
-            color: Colors.amber,
           ),
         ),
         SizedBox(
@@ -72,7 +71,6 @@ class MyApp extends StatelessWidget {
         Flexible(
           flex: 1,
           child: Container(
-            color: Colors.amber,
           ),
         )
       ],
@@ -84,7 +82,6 @@ class MyApp extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
-            color: Colors.amber,
           ),
         ),
         SizedBox(
@@ -96,9 +93,9 @@ class MyApp extends StatelessWidget {
   }
 
   final _wewishTheme = ThemeData(
-    textTheme: TextTheme(
+    textTheme: const TextTheme(
       headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, letterSpacing: 0.1)
-    ),
+    ).apply(bodyColor: Colors.black87, displayColor: Colors.black87),
     fontFamily: 'AppleSDGothicNeo',
     // colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF90DFF9)),
     primarySwatch: const MaterialColor(0xFF90DFF9, {

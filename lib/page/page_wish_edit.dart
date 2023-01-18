@@ -1,16 +1,20 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/model/item_category.dart';
+import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
-import 'package:wewish/provider/provider_registry.dart';
+import 'package:wewish/provider/provider_bottom_nav.dart';
+import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/ui/button_text_primary.dart';
 import 'package:wewish/util/category_parser.dart';
 import 'package:wewish/util/meta_parser.dart';
+import 'package:wewish/router.dart' as router;
 
 class WishEditPage extends StatefulWidget {
   // WishItem? wishItem;
@@ -28,7 +32,7 @@ class _WishEditPageState extends State<WishEditPage>
   final TextEditingController _nameEditingController = TextEditingController();
   final TextEditingController _priceEditingController = TextEditingController();
 
-  late RegistryProvider _registryProvider;
+  late UserProvider _userProvider;
   final GlobalKey _scaffoldKey = GlobalKey();
 
   final CategoryItem _curCategoryItem = CategoryItem();
@@ -37,32 +41,42 @@ class _WishEditPageState extends State<WishEditPage>
   OpengraphData? opengraphData;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _registryProvider = Provider.of<RegistryProvider>(context);
-  }
-
-  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    if (FirebaseAuth.instance.currentUser == null) {
+      _goLoginPage();
+    }
+
     if (widget.url != null) {
       _urlEditingController.text = widget.url!;
       _parseUrl(widget.url!);
     }
+
     if (widget.url == null && _urlEditingController.text.isEmpty) {
       _doCheckClipboard();
     }
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    Logger logger = Logger(printer: PrettyPrinter());
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _userProvider = context.watch<UserProvider>();
 
-    logger.d(state);
+
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       if (widget.url == null && _urlEditingController.text.isEmpty) {
         _doCheckClipboard();
+      }
+
+      if (widget.url != null) {
+        _urlEditingController.text = widget.url!;
+        _parseUrl(widget.url!);
       }
     }
   }
@@ -148,6 +162,7 @@ class _WishEditPageState extends State<WishEditPage>
   void _showCategoryBottomSheet() {
     showModalBottomSheet(
         context: context,
+        isDismissible: false,
         builder: (BuildContext context) {
           return ListView.builder(
             itemCount: Category.values.length,
@@ -225,6 +240,7 @@ class _WishEditPageState extends State<WishEditPage>
       return;
     }
     showModalBottomSheet(
+        isDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return ListView.builder(
@@ -251,6 +267,7 @@ class _WishEditPageState extends State<WishEditPage>
   void _showCategoryPart1Sheet(Map<String, List<CategorySingle>> categoryMap) {
     showModalBottomSheet(
         context: context,
+        isDismissible: false,
         builder: (BuildContext context) {
           List<String> keys = categoryMap.keys.toList();
           return ListView.builder(
@@ -276,9 +293,11 @@ class _WishEditPageState extends State<WishEditPage>
   }
 
   _addWish() {
-    setState(() {
-      _onLoading = true;
-    });
+    if (!isValidInput()) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('입력칸을 채워주세요.')));
+      return;
+    }
+
     CategoryItem categoryItem = _curCategoryItem;
 
     WishItem wishItem = WishItem()
@@ -306,17 +325,46 @@ class _WishEditPageState extends State<WishEditPage>
     });
   }
 
-  void updateRegistry(WishItem wishItem) {
+  void updateRegistry(WishItem wishItem) async {
     setState(() {
       _onLoading = true;
     });
-    FirebaseFirestore.instance
+    final registrySnapshot = await FirebaseFirestore.instance
         .collection('registry')
-        .where('user.uId', isEqualTo: "HcRzmebMekTFo4w9jm2u")
+        .where('user.uId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .limit(1)
-        .get()
-        .then((value) {
-      value.docs[0].reference.update({
+        .get().catchError((error) {
+          setState(() {
+            _onLoading = false;
+          });
+    });
+
+    if (registrySnapshot.docs.isEmpty) {
+      // 유저가 레지스트리를 만든적이 없어서 유저의 정보를 가져와서 레지스트리에 같이 붙여줘야함.
+      final userSnapshot = await FirebaseFirestore.instance.collection('user')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .withConverter<UserItem>(
+          fromFirestore: (snapshots, _) => UserItem.fromJson(snapshots.data()!),
+          toFirestore: (user, _) => user.toJson(),)
+          .get();
+
+      if (userSnapshot.data() != null) {
+        UserItem userItem = userSnapshot.data()!;
+        _userProvider.updateLoginUser(userItem);
+        FirebaseFirestore.instance.collection('registry')
+        .add({
+          'user': userItem.toJson(),
+          'wishlist': [wishItem.toJson()]
+        }).then((value) {
+          setState(() {
+            _onLoading = false;
+          });
+          Navigator.pop(context);
+        });
+      }
+
+    } else {
+      await registrySnapshot.docs[0].reference.update({
         'wishlist': FieldValue.arrayUnion([wishItem.toJson()])
       }).then((value) {
         setState(() {
@@ -328,11 +376,7 @@ class _WishEditPageState extends State<WishEditPage>
           _onLoading = false;
         });
       });
-    }, onError: (e) {
-      setState(() {
-        _onLoading = false;
-      });
-    });
+    }
   }
 
   void _parseUrl(String url) {
@@ -346,7 +390,9 @@ class _WishEditPageState extends State<WishEditPage>
   Widget _buildOgDataCard() {
     return opengraphData == null
         ? Container(
+            color: Colors.black12,
             height: 120,
+            child: const Center(child: Text('이 링크는 미리보기 정보가 존재하지 않습니다.')),
           )
         : Row(children: [
             SizedBox(
@@ -362,5 +408,15 @@ class _WishEditPageState extends State<WishEditPage>
         ],),
       )
           ]);
+  }
+
+  void _goLoginPage() {
+    NavigationProvider navigationProvider = context.watch<NavigationProvider>();
+    navigationProvider.updateCurrentTab(MainTab.myPage);
+    Navigator.of(context).popAndPushNamed(router.home, arguments: MainTab.myPage);
+  }
+
+  bool isValidInput() {
+    return _urlEditingController.text.isNotEmpty && _nameEditingController.text.isNotEmpty && _priceEditingController.text.isNotEmpty && _curCategoryItem.categoryId != -1;
   }
 }

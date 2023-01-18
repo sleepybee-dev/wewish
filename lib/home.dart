@@ -15,7 +15,10 @@ import 'package:wewish/provider/provider_bottom_nav.dart';
 import 'package:wewish/router.dart' as router;
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+
+  MainTab initialTab = MainTab.home;
+
+  Home({Key? key, this.initialTab = MainTab.home}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -41,9 +44,16 @@ class _HomeState extends State<Home> {
     getDynamicLink();
   }
 
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _navigationProvider = context.watch<NavigationProvider>();
+  }
+
   @override
   Widget build(BuildContext context) {
-    _navigationProvider = Provider.of<NavigationProvider>(context);
+
     return Scaffold(
       bottomNavigationBar: kIsWeb ? null : _buildBottomNavBar(),
       body: WillPopScope(
@@ -53,15 +63,14 @@ class _HomeState extends State<Home> {
 
 
   Widget _buildNavBody() {
-    switch (_navigationProvider.currentPage) {
-      case 0:
+    switch (_navigationProvider.currentTab) {
+      case MainTab.search:
         return const SearchPage();
-      case 1:
+      case MainTab.home:
         return const HomePage();
-      case 2:
+      case MainTab.myPage:
         return const MyPageTemp();
     }
-    return Container();
   }
 
   Widget _buildTopNavBar() {
@@ -74,21 +83,21 @@ class _HomeState extends State<Home> {
         Expanded(child: Container()),
         IconButton(
           icon: Icon(Icons.search),
-          onPressed: () => _navigationProvider.updateCurrentPage(0),
+          onPressed: () => _navigationProvider.updateCurrentTab(MainTab.search),
           color:
-              _navigationProvider.currentPage == 0 ? Colors.red : Colors.black,
+              _navigationProvider.currentTab == MainTab.search ? Theme.of(context).primaryColor : Colors.black12,
         ),
         IconButton(
           icon: Icon(Icons.home),
-          onPressed: () => _navigationProvider.updateCurrentPage(1),
+          onPressed: () => _navigationProvider.updateCurrentTab(MainTab.home),
           color:
-              _navigationProvider.currentPage == 1 ? Colors.red : Colors.black,
+              _navigationProvider.currentTab == MainTab.home ? Theme.of(context).primaryColor : Colors.black12,
         ),
         IconButton(
           icon: Icon(Icons.person),
-          onPressed: () => _navigationProvider.updateCurrentPage(2),
+          onPressed: () => _navigationProvider.updateCurrentTab(MainTab.myPage),
           color:
-              _navigationProvider.currentPage == 2 ? Colors.red : Colors.black,
+              _navigationProvider.currentTab == MainTab.myPage ? Theme.of(context).primaryColor : Colors.black12,
         ),
       ],
     );
@@ -96,16 +105,16 @@ class _HomeState extends State<Home> {
 
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
-      items: [
-        const BottomNavigationBarItem(
+      items: const [
+        BottomNavigationBarItem(
             icon: Icon(Icons.search), label: 'search'),
-        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-        const BottomNavigationBarItem(
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+        BottomNavigationBarItem(
             icon: Icon(Icons.person), label: 'mypage'),
       ],
-      currentIndex: _navigationProvider.currentPage,
+      currentIndex: _navigationProvider.currentTab.index,
       onTap: (index) {
-        _navigationProvider.updateCurrentPage(index);
+        _navigationProvider.updateCurrentTab(MainTab.values[index]);
       },
     );
   }

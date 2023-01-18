@@ -35,6 +35,9 @@ class MetaParser {
           if (ogTagValue == null || ogTagValue.isEmpty) {
             ogTagValue = _scrapeAlternateToEmptyValue(ogTagTitle, document);
           }
+          if (ogTagTitle == 'image' && ogTagValue.startsWith('//')) {
+            ogTagValue = 'https:$ogTagValue';
+          }
           data[ogTagTitle] = ogTagValue;
         }
       }

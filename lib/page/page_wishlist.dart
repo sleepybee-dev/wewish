@@ -9,7 +9,6 @@ import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/ui/card_profile.dart';
 import 'package:wewish/ui/card_wish.dart';
 
-
 class WishListPage extends StatefulWidget {
   final RegistryItem? registryItem;
 
@@ -45,18 +44,18 @@ class _WishListPageState extends State<WishListPage> {
             )),
         body: widget.registryItem == null
             ? FutureBuilder<RegistryItem>(
-          future: fetchRegistry(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-            if (!snapshot.hasData || snapshot.hasError) {
-              return Text('위시리스트 가져오기 실패');
-            }
-            RegistryItem registryItem = snapshot.data!;
-            return _buildBody(registryItem);
-          },
-        )
+                future: fetchRegistry(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (!snapshot.hasData || snapshot.hasError) {
+                    return Text('위시리스트 가져오기 실패');
+                  }
+                  RegistryItem registryItem = snapshot.data!;
+                  return _buildBody(registryItem);
+                },
+              )
             : _buildBody(widget.registryItem!),
       ),
     );
@@ -79,18 +78,20 @@ class _WishListPageState extends State<WishListPage> {
   }
 
   Widget _buildWishTile(WishItem wishItem, int index) {
-    return WishCard(wishItem,
-      onReservationPressed: ()=> doReservation(index),
-      onPresentPressed: (){},);
+    return WishCard(
+      wishItem,
+      onReservationPressed: () => doReservation(index),
+      onPresentPressed: () {},
+    );
   }
 
   Future<RegistryItem> fetchRegistry() async {
     QuerySnapshot<RegistryItem>? snapshot = await registryCollection
         .withConverter<RegistryItem>(
-      fromFirestore: (snapshots, _) =>
-          RegistryItem.fromJson(snapshots.data()!),
-      toFirestore: (registry, _) => registry.toJson(),
-    )
+          fromFirestore: (snapshots, _) =>
+              RegistryItem.fromJson(snapshots.data()!),
+          toFirestore: (registry, _) => registry.toJson(),
+        )
         .limit(1)
         .get();
 
@@ -107,15 +108,18 @@ class _WishListPageState extends State<WishListPage> {
       final ref = await FirebaseFirestore.instance
           .collection('registry')
           .doc(widget.registryItem!.registryId!);
-      List<WishItem> before = widget.registryItem!.wishList;
+      List<WishItem> originList = widget.registryItem!.wishList;
       var tempUser = widget.registryItem!.user;
 
-      List<WishItem> after = before;
+      List<WishItem> after = originList;
       print(after[index].productName);
       print(after[index].isBooked);
+
+      String message = "";
+
       after[index].isBooked = !after[index].isBooked;
       print(after[index].isBooked);
-      before.forEach((element) {
+      originList.forEach((element) {
         print(element.toJson());
       });
       after.forEach((element) {
@@ -123,9 +127,8 @@ class _WishListPageState extends State<WishListPage> {
       });
 
       // set사용
-      RegistryItem newfield = RegistryItem(
-          user: tempUser, wishList: after, giveList: []);
-      ref.set(newfield.toJson());
+      List<WishItem> newWishList = after;
+      ref.set({'wishlist': newWishList.map((e) => e.toJson()).toList()});
 
       // arrayRemove, arrayUnion 말고 set 덮어쓰기로 구현
       // removeWishlistToUpdateReservation(before, registryItem);
@@ -140,8 +143,7 @@ class _WishListPageState extends State<WishListPage> {
       // 필요 기능: page_wish_reservation으로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => Reservation()),
+        MaterialPageRoute(builder: (context) => Reservation()),
       );
     }
   }

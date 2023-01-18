@@ -29,58 +29,64 @@ class _WishCardState extends State<WishCard> {
       padding: const EdgeInsets.all(8.0),
       child: InkWell(
         onTap: () => _launchUrl(widget.wishItem.url),
-        child: Stack(children: [
-          widget.showStatus ? _buildStatusLabel(widget.wishItem) : Container(),
-          Card(
-            child: Column(
-              children: [
-                Container(
-                  color: Color(0xff97d2f8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(child: Text(widget.wishItem.productName)),
-                        Text(
-                          widget.wishItem.price.toString(),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                widget.showActionBar ? ButtonBar(
-                  alignment: MainAxisAlignment.end,
-                  buttonPadding: EdgeInsets.only(left: 20),
+        child: SizedBox(
+          height: 140,
+          child: Stack(children: [
+            widget.showStatus
+                ? _buildStatusLabel(widget.wishItem)
+                : Container(),
+            Card(
+              child: SizedBox(
+                height: 180,
+                child: Row(
                   children: [
-                    // 임시 로그인/로그아웃을 위한 버튼
-                    ElevatedButton(
-                      onPressed: widget.onReservationPressed, // Navigate 필요
-                      child: Text('예약'),
+                    Container(
+                      width: 120,
+                      height: 120,
+                      child: FutureBuilder<OpengraphData>(
+                          future: _fetchOpengraphData(widget.wishItem.url),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                (snapshot.connectionState ==
+                                        ConnectionState.done &&
+                                    snapshot.data == null)) {
+                              return Container(
+                                height: 120,
+                                color: Theme.of(context).canvasColor,
+                              );
+                            }
+                            return Image.network(snapshot.data!.url);
+                          }),
                     ),
-                    OutlinedButton(
-                      onPressed: widget.onPresentPressed,
-                      child: Text('선물하기'),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.wishItem.productName, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                            Text(
+                              widget.wishItem.category.category,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '${widget.wishItem.price.toString()}원',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            widget.showActionBar
+                                ? _buildActionButtonBar()
+                                : Container(),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
-                ) : Container(),
-                FutureBuilder<OpengraphData>(
-                    future: _fetchOpengraphData(widget.wishItem.url),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting ||
-                          (snapshot.connectionState == ConnectionState.done &&
-                              snapshot.data == null)) {
-                        return Container(
-                          height: 120,
-                          color: Colors.grey,
-                        );
-                      }
-                      return _buildOpenGraphBox(snapshot.data!);
-                    })
-              ],
+                ),
+              ),
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
     );
   }
@@ -89,24 +95,25 @@ class _WishCardState extends State<WishCard> {
     return Column(
       children: [
         SizedBox(
+            width: 100,
             height: 100,
             child: Image.network(
               opengraphData.image,
               fit: BoxFit.cover,
             )),
-        Text(
-          opengraphData.title,
-          style: TextStyle(fontWeight: FontWeight.bold),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        Text(opengraphData.description),
-        Text(
-          opengraphData.url,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        // Text(
+        //   opengraphData.title,
+        //   style: TextStyle(fontWeight: FontWeight.bold),
+        //   maxLines: 1,
+        //   overflow: TextOverflow.ellipsis,
+        // ),
+        // Text(opengraphData.description),
+        // Text(
+        //   opengraphData.url,
+        //   style: TextStyle(fontSize: 12, color: Colors.grey),
+        //   maxLines: 1,
+        //   overflow: TextOverflow.ellipsis,
+        // ),
       ],
     );
   }
@@ -147,6 +154,7 @@ class _WishCardState extends State<WishCard> {
         bottom: 0,
         left: 0,
         child: Container(
+          height: 40,
             child: Text(
               message,
               textAlign: TextAlign.right,
@@ -166,6 +174,25 @@ class _WishCardState extends State<WishCard> {
       return WishStatus.given;
     }
     return WishStatus.none;
+  }
+
+  Widget _buildActionButtonBar() {
+    return ButtonBar(
+      alignment: MainAxisAlignment.end,
+      buttonPadding: EdgeInsets.only(left: 20),
+      children: [
+        // 임시 로그인/로그아웃을 위한 버튼
+        ElevatedButton(
+          onPressed:
+          widget.onReservationPressed, // Navigate 필요
+          child: Text('예약'),
+        ),
+        OutlinedButton(
+          onPressed: widget.onPresentPressed,
+          child: Text('선물하기'),
+        ),
+      ],
+    );
   }
 }
 

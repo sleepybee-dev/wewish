@@ -7,6 +7,7 @@ import 'package:wewish/page/page_mypage_login.dart';
 import 'package:wewish/page/page_wish_edit.dart';
 import 'package:wewish/page/page_wishlist.dart';
 import 'package:wewish/page/page_settings.dart';
+import 'package:wewish/provider/provider_bottom_nav.dart';
 
 
 const String home = '/';
@@ -35,7 +36,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         return MaterialPageRoute(builder: (context) => EditProfile(userItem: settings.arguments as UserItem,));
       }
       return MaterialPageRoute(builder: (context) => const MyPageLogin());
+    case home:
+      if (settings.arguments != null && settings.arguments is MainTab) {
+        return MaterialPageRoute(builder: (context) => Home(initialTab: settings.arguments as MainTab,));
+      }
+      return MaterialPageRoute(builder: (context) => Home());
     default:
-      return MaterialPageRoute(builder: (context) => const Home());
+      return MaterialPageRoute(builder: (context) => Home());
   }
 }
