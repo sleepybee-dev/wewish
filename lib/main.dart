@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
 
   final _wewishTheme = ThemeData(
     textTheme: const TextTheme(
-      headlineMedium: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, letterSpacing: -0.1)
+      headlineMedium: TextStyle(fontSize: 26, fontWeight: FontWeight.w500, letterSpacing: -1)
     ).apply(bodyColor: Colors.black87, displayColor: Colors.black87),
     fontFamily: 'AppleSDGothicNeo',
     // colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF90DFF9)),

@@ -32,14 +32,15 @@ class CommonBody extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
+    final leftPadding = showBackButton ? 4.0 : 16.0;
     return Padding(
-      padding: const EdgeInsets.only(left:16, top:8.0),
+      padding: EdgeInsets.only(left: leftPadding),
       child: SizedBox(
-        height: 60,
+        height: 56,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            showBackButton ? IconButton(onPressed: onBackPressed, icon: const Icon(Icons.arrow_back_ios_new)): Container(),
+            showBackButton ? IconButton(onPressed: onBackPressed, icon: const Icon(Icons.arrow_back_ios_new, size: 20,)): Container(),
             title != null ? Expanded(child: Text(title!, style: Theme.of(context).textTheme.headlineMedium,)) : Expanded(child: Container()),
             rightButton != null? rightButton! : Container()
           ],

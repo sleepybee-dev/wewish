@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/util/meta_parser.dart';
@@ -40,12 +41,13 @@ class _WishCardState extends State<WishCard> {
                 height: 180,
                 child: Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: 120,
                       height: 120,
                       child: FutureBuilder<OpengraphData>(
                           future: _fetchOpengraphData(widget.wishItem.url),
                           builder: (context, snapshot) {
+                            Logger(printer:PrettyPrinter()).d(snapshot);
                             if (snapshot.connectionState ==
                                     ConnectionState.waiting ||
                                 (snapshot.connectionState ==
@@ -56,7 +58,7 @@ class _WishCardState extends State<WishCard> {
                                 color: Theme.of(context).canvasColor,
                               );
                             }
-                            return Image.network(snapshot.data!.url);
+                            return Image.network(snapshot.data!.image);
                           }),
                     ),
                     Expanded(
@@ -178,21 +180,22 @@ class _WishCardState extends State<WishCard> {
   }
 
   Widget _buildActionButtonBar() {
-    return ButtonBar(
-      alignment: MainAxisAlignment.end,
-      buttonPadding: EdgeInsets.only(left: 20),
-      children: [
-        // 임시 로그인/로그아웃을 위한 버튼
-        ElevatedButton(
-          onPressed:
-          widget.onReservationPressed, // Navigate 필요
-          child: Text('예약'),
-        ),
-        OutlinedButton(
-          onPressed: widget.onPresentPressed,
-          child: Text('선물하기'),
-        ),
-      ],
+    return SizedBox(
+      height: 56,
+      child: ButtonBar(
+        alignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+            onPressed:
+            widget.onReservationPressed, // Navigate 필요
+            child: Text('예약'),
+          ),
+          OutlinedButton(
+            onPressed: widget.onPresentPressed,
+            child: Text('선물하기'),
+          ),
+        ],
+      ),
     );
   }
 }

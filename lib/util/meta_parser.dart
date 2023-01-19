@@ -6,10 +6,13 @@ import 'package:html/dom.dart';
 import 'package:logger/logger.dart';
 
 class MetaParser {
+  static Logger logger = Logger(printer: PrettyPrinter());
+
   static Future<OpengraphData> getOpenGraphData(String url) async {
     var uri = Uri.parse(url);
     var response = await http.get(uri);
 
+    logger.d(response);
     return OpengraphData.fromJson(getOpenGraphDataFromResponse(response));
   }
 
@@ -43,6 +46,7 @@ class MetaParser {
       }
     }
 
+    logger.d(data);
     return data;
   }
 

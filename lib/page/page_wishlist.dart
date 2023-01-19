@@ -6,6 +6,7 @@ import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/page/page_wish_reservation.dart';
 import 'package:wewish/provider/provider_user.dart';
+import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/ui/card_profile.dart';
 import 'package:wewish/ui/card_wish.dart';
 
@@ -37,12 +38,11 @@ class _WishListPageState extends State<WishListPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-            centerTitle: true,
-            title: Text(
-              '위시리스트',
-            )),
-        body: _buildBody(widget.registryItem),
+        body: CommonBody(
+          showBackButton: true,
+            onBackPressed: () => Navigator.of(context).pop(),
+            title: '${widget.registryItem.user.nickname}님의 위시리스트',
+            child: _buildBody(widget.registryItem)),
       ),
     );
   }
@@ -67,8 +67,8 @@ class _WishListPageState extends State<WishListPage> {
     return WishCard(
       wishItem,
       onReservationPressed: () => doReservation(index),
-      onPresentPressed: () {},
-      showActionBar: widget.registryItem.user.uId != _userProvider.user!.uId!,
+      onPresentPressed: () => doPresent(index),
+      showActionBar: _userProvider.user == null || (widget.registryItem.user.uId != _userProvider.user!.uId!),
     );
   }
 
@@ -109,11 +109,24 @@ class _WishListPageState extends State<WishListPage> {
         ),
       );
     } else {
-      // 필요 기능: page_wish_reservation으로 이동
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Reservation()),
-      );
+      // [TODO] 필요 기능: page_wish_reservation으로 이동
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => Reservation()),
+      // );
+      showLoginInfoSnackbar();
+    }
+  }
+
+  void showLoginInfoSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('로그인이 필요한 액션입니다.'),));
+  }
+
+  void doPresent(int index) {
+    if (_userProvider.user == null) {
+      showLoginInfoSnackbar();
+    } else {
+
     }
   }
 }
