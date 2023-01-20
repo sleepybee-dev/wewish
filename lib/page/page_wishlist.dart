@@ -4,7 +4,6 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_wish.dart';
-import 'package:wewish/page/page_wish_reservation.dart';
 import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/ui/card_profile.dart';
@@ -23,6 +22,13 @@ class _WishListPageState extends State<WishListPage> {
   final registryCollection = FirebaseFirestore.instance.collection('registry');
   String? curRegistryId;
   late UserProvider _userProvider;
+  List<WishItem> _curWishList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _curWishList = widget.registryItem.wishList;
+  }
 
   @override
   void didChangeDependencies() {
@@ -51,7 +57,7 @@ class _WishListPageState extends State<WishListPage> {
     return Column(
       children: [
         ProfileCard(registryItem.user),
-        Expanded(child: _buildWishList(registryItem.wishList)),
+        Expanded(child: _buildWishList(_curWishList)),
       ],
     );
   }
@@ -77,11 +83,8 @@ class _WishListPageState extends State<WishListPage> {
       final ref = FirebaseFirestore.instance
           .collection('registry')
           .doc(widget.registryItem.registryId!);
-      List<WishItem> originList = widget.registryItem.wishList;
-      var tempUser = widget.registryItem.user;
-
+      List<WishItem> originList = _curWishList;
       List<WishItem> after = originList;
-
 
       after[index].isBooked = !after[index].isBooked;
       after[index].actionUser = after[index].isBooked ? _userProvider.user : null;
@@ -90,8 +93,10 @@ class _WishListPageState extends State<WishListPage> {
 
       List<WishItem> newWishList = after;
       ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
+        WishItem actionItem = after[index]..wishUser = widget.registryItem.user;
+        _updateMyAction(actionItem);
         setState(() {
-          widget.registryItem.wishList = newWishList;
+          _curWishList = newWishList;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -118,7 +123,50 @@ class _WishListPageState extends State<WishListPage> {
     if (_userProvider.user == null) {
       showLoginInfoSnackbar();
     } else {
+      final ref = FirebaseFirestore.instance
+          .collection('registry')
+          .doc(widget.registryItem.registryId!);
+      List<WishItem> originList = _curWishList;
+      List<WishItem> after = originList;
 
+      after[index].isPresented = !after[index].isPresented;
+      after[index].actionUser = after[index].isPresented ? _userProvider.user : null;
+
+      String message = after[index].isPresented ? '선물하였습니다.' : '선물 표시 취소되었습니다.';
+
+      List<WishItem> newWishList = after;
+      ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
+        WishItem actionItem = after[index]..wishUser = widget.registryItem.user;
+        _updateMyAction(actionItem);
+        setState(() {
+          _curWishList = newWishList;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      });
+    }
+  }
+
+  void _updateMyAction(WishItem actionItem) async {
+    if (_userProvider.user != null) {
+      final snapshot = await FirebaseFirestore.instance.collection('registry').where('user.uId', isEqualTo: _userProvider.user!.uId)
+          .get();
+      if (snapshot.docs.isEmpty) {
+        FirebaseFirestore.instance.collection('registry').add(
+          {
+            'user': _userProvider.user!.toJson(),
+            'actions': [actionItem.toString()]
+          }
+        );
+      } else {
+        snapshot.docs[0].reference.update({
+          'actions' : FieldValue.arrayUnion([actionItem.toJson()])
+        });
+      }
     }
   }
 }

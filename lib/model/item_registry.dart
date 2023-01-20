@@ -1,28 +1,27 @@
 import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
-import 'package:wewish/model/item_give.dart';
 
 class RegistryItem {
   String? registryId;
   UserItem user;
   List<WishItem> wishList = [];
-  List<GiveItem> giveList = [];
+  List<WishItem> actionList = [];
 
   RegistryItem(
-      {required this.user, required this.wishList, required this.giveList});
+      {required this.user, required this.wishList, required this.actionList});
 
   RegistryItem.fromJson(Map<String, dynamic> json)
       : user = UserItem.fromJson(json['user']),
         wishList = (json['wishlist'] as List<dynamic>)
             .map((e) => WishItem.fromJson(e as Map<String, dynamic>))
             .toList(),
-        giveList = json['givelist'] == null ? [] : (json['givelist'] as List<dynamic>)
-            .map((e) => GiveItem.fromJson(e as Map<String, dynamic>))
+        actionList = json['actions'] == null ? [] : (json['actions'] as List<dynamic>)
+            .map((e) => WishItem.fromJson(e as Map<String, dynamic>))
             .toList();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'user': user,
         'wishlist': wishList,
-        'givelist': giveList,
+        'actions': actionList,
       };
 }

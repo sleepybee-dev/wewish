@@ -28,108 +28,82 @@ class _WishCardState extends State<WishCard> {
   WishStatus _curStatus = WishStatus.none;
 
   @override
-  void initState() {
-    super.initState();
-    _curStatus = generateStatus(widget.wishItem);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    _curStatus = generateStatus(widget.wishItem);
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: () => _launchUrl(widget.wishItem.url),
-        child: SizedBox(
-          height: 140,
-          child: Stack(children: [
-            widget.showStatus
-                ? _buildStatusLabel(widget.wishItem)
-                : Container(),
-            Card(
-              child: SizedBox(
-                height: 180,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 120,
-                      height: 120,
-                      child: FutureBuilder<OpengraphData>(
-                          future: _fetchOpengraphData(widget.wishItem.url),
-                          builder: (context, snapshot) {
-                            Logger(printer: PrettyPrinter()).d(snapshot);
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                (snapshot.connectionState ==
-                                        ConnectionState.done &&
-                                    snapshot.data == null)) {
-                              return Container(
-                                height: 120,
-                                color: Theme.of(context).canvasColor,
-                              );
-                            }
-                            return Image.network(snapshot.data!.image);
-                          }),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.wishItem.productName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              widget.wishItem.category.category,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              '${widget.wishItem.price.toString()}원',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            widget.showActionBar
-                                ? _buildActionButtonBar()
-                                : Container(),
-                          ],
-                        ),
+      child: SizedBox(
+        height: 140,
+        child: Stack(children: [
+          widget.showStatus ? _buildStatusLabel(widget.wishItem) : Container(),
+          Card(
+            child: SizedBox(
+              height: 180,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 120,
+                    height: 120,
+                    child: FutureBuilder<OpengraphData>(
+                        future: _fetchOpengraphData(widget.wishItem.url),
+                        builder: (context, snapshot) {
+                          Logger(printer: PrettyPrinter()).d(snapshot);
+                          if (snapshot.connectionState ==
+                                  ConnectionState.waiting ||
+                              (snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  snapshot.data == null)) {
+                            return Container(
+                              color: Theme.of(context).canvasColor,
+                            );
+                          }
+                          return GestureDetector(
+                              onTap: () => _launchUrl(widget.wishItem.url),
+                              child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    SizedBox(
+                                        height:120,
+                                        child: Image.network(snapshot.data!.image, fit: BoxFit.cover,)),
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Icon(Icons.link, color: Colors.white,),
+                                    ),
+                                  ]));
+                        }),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.wishItem.productName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            widget.wishItem.category.category,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '${widget.wishItem.price.toString()}원',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          widget.showActionBar
+                              ? _buildActionButtonBar()
+                              : Container(),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ]),
-        ),
+          ),
+        ]),
       ),
-    );
-  }
-
-  Widget _buildOpenGraphBox(OpengraphData opengraphData) {
-    return Column(
-      children: [
-        SizedBox(
-            width: 100,
-            height: 100,
-            child: Image.network(
-              opengraphData.image,
-              fit: BoxFit.cover,
-            )),
-        // Text(
-        //   opengraphData.title,
-        //   style: TextStyle(fontWeight: FontWeight.bold),
-        //   maxLines: 1,
-        //   overflow: TextOverflow.ellipsis,
-        // ),
-        // Text(opengraphData.description),
-        // Text(
-        //   opengraphData.url,
-        //   style: TextStyle(fontSize: 12, color: Colors.grey),
-        //   maxLines: 1,
-        //   overflow: TextOverflow.ellipsis,
-        // ),
-      ],
     );
   }
 
@@ -176,7 +150,7 @@ class _WishCardState extends State<WishCard> {
             child: Text(
               message,
               textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
             color: Colors.black.withOpacity(0.5)));
   }
@@ -229,7 +203,7 @@ class _WishCardState extends State<WishCard> {
             : Theme.of(context).primaryColor;
       })),
       onPressed: _curStatus == WishStatus.bookedBySomeone
-          ? _showSnackBar('다른 사람이 선물 예약했어요.')
+          ? () => _showSnackBar('다른 사람이 선물 예약했어요.')
           : widget.onReservationPressed, // Navigate 필요
       child: Text(
         showCancelButton ? '예약취소' : '예약',
@@ -253,7 +227,9 @@ class _WishCardState extends State<WishCard> {
         _curStatus == WishStatus.given;
 
     return ElevatedButton(
-        onPressed: showDisableButton ? () {} : widget.onPresentPressed,
+        onPressed: _curStatus == WishStatus.presentedByMySelf
+            ? () => _showSnackBar('다른 사람이 선물 표시했어요.')
+            : widget.onPresentPressed,
         child: Text(
           showCancelButton ? '선물취소' : '선물하기',
           style:

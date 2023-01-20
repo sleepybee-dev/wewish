@@ -32,56 +32,53 @@ class _CommonTextFieldState extends State<CommonTextField> {
       child: Column(
         children: <Widget>[
           // Add TextFormField
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: SizedBox(
-              height: 48,
-              child: TextFormField(
-                onEditingComplete: widget.onEditingComplete ?? (){},
-                keyboardType: widget.keyboardType ?? TextInputType.text,
-                controller: widget.controller,
-                textInputAction: TextInputAction.search,
-                onFieldSubmitted: (String value) { // TextFormField 입력값 반환
-                  final formKeyState = _formKey.currentState!;
-                  if (formKeyState.validate()) {
-                    formKeyState.save();
-                  }
-                },
-                onSaved: (value){
-                  setState(() {
-                    _value = value as String;
-                    print('value = $_value 저장');
-                  });
-                },
-                validator: (value){
-                  if (value == null || value.isEmpty){
-                    return '${widget.validationText}을(를) 한 글자 이상 입력하세요';
-                  }
-                  return null;
-                },
-                onChanged: (text) {
-                  setState(() {
-                    flag = true;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: widget.hintText,
-                  suffixIcon: (flag && widget.controller?.text != '')
-                      ? IconButton(
-                    onPressed: (){
-                      setState(() {
-                        flag = false;
-                      });
-                      widget.controller?.clear();
-                      return;
-                    },
-                    icon: Icon(Icons.clear),)
-                      : null,
-                  border: inputBorder(Colors.lightBlue),
-                  focusedBorder: inputBorder(Colors.lightBlueAccent),
-                  enabledBorder: inputBorder(Colors.lightBlue),
-                  errorBorder: inputBorder(Colors.redAccent),
-                ),
+          SizedBox(
+            height: 48,
+            child: TextFormField(
+              onEditingComplete: widget.onEditingComplete ?? (){},
+              keyboardType: widget.keyboardType ?? TextInputType.text,
+              controller: widget.controller,
+              textInputAction: TextInputAction.search,
+              onFieldSubmitted: (String value) { // TextFormField 입력값 반환
+                final formKeyState = _formKey.currentState!;
+                if (formKeyState.validate()) {
+                  formKeyState.save();
+                }
+              },
+              onSaved: (value){
+                setState(() {
+                  _value = value as String;
+                  print('value = $_value 저장');
+                });
+              },
+              validator: (value){
+                if (value == null || value.isEmpty){
+                  return '${widget.validationText}을(를) 한 글자 이상 입력하세요';
+                }
+                return null;
+              },
+              onChanged: (text) {
+                setState(() {
+                  flag = true;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: widget.hintText,
+                suffixIcon: (flag && widget.controller?.text != '')
+                    ? IconButton(
+                  onPressed: (){
+                    setState(() {
+                      flag = false;
+                    });
+                    widget.controller?.clear();
+                    return;
+                  },
+                  icon: Icon(Icons.clear),)
+                    : null,
+                border: inputBorder(Colors.lightBlue),
+                focusedBorder: inputBorder(Colors.lightBlueAccent),
+                enabledBorder: inputBorder(Colors.lightBlue),
+                errorBorder: inputBorder(Colors.redAccent),
               ),
             ),
           )

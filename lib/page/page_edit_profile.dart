@@ -8,6 +8,7 @@ import 'package:textfield_tags/textfield_tags.dart';
 import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:path/path.dart';
+import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/ui/textfield_common.dart';
 
 class EditProfile extends StatefulWidget {
@@ -70,34 +71,38 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('프로필 수정')),
-        body: Stack(children: [
-          _isLoading ? Center(child: CircularProgressIndicator()) : Container(),
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: ListView(
-                children: <Widget>[
-                  imageProfile(),
-                  SizedBox(height: 20),
-                  Text('*닉네임',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                  nameField(),
-                  SizedBox(height: 20),
-                  Text('*해시태그',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                  hashtagField(),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    child: Text("변경 사항 저장"),
-                    onPressed: () => _doUpdateProfile(context),
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(400, 50)),
-                  )
-                ],
-              ))
-        ]));
+        body: CommonBody(
+          title: '프로필 수정',
+          showBackButton: true,
+          onBackPressed: ()=> Navigator.pop(context),
+          child: Stack(children: [
+            _isLoading ? Center(child: CircularProgressIndicator()) : Container(),
+            Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: ListView(
+                  children: <Widget>[
+                    imageProfile(),
+                    SizedBox(height: 20),
+                    Text('*닉네임',
+                        style:
+                            TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    nameField(),
+                    SizedBox(height: 20),
+                    Text('*해시태그',
+                        style:
+                            TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    hashtagField(),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      child: Text("변경 사항 저장"),
+                      onPressed: () => _doUpdateProfile(context),
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(400, 50)),
+                    )
+                  ],
+                ))
+          ]),
+        ));
   }
 
   Widget imageProfile() {
