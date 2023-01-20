@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_user.dart';
-import 'package:wewish/page/page_my_givelist.dart';
+import 'package:wewish/page/page_my_actionlist.dart';
 import 'package:wewish/page/page_my_wishlist.dart';
 import 'package:wewish/page/page_settings.dart';
 import 'package:wewish/provider/provider_user.dart';
@@ -62,33 +62,31 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
+          backgroundColor: Theme.of(context).primaryColor,
+          child: const Icon(Icons.add),
           onPressed: () => _goAddPage(),
         ),
-        body: Stack(alignment: Alignment.topRight, children: [
-          TextButton(onPressed: _goSettingPage, child: Text('설정')),
-          _curUser != null
-              ? _buildBody(_curUser!)
-              :
-              // _curUser를 initState에서 체크함에도 불구하고 null인 경우가 있음. (신규가입 후 프로필 저장 후 돌아왔을때)
-              FutureBuilder<UserItem?>(
-                  future: _fetchUser(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (!snapshot.hasData || snapshot.hasError) {
-                      return Center(
-                        child: Text('문제가 발생했어요'),
-                      );
-                    }
-                    final userItem = snapshot.data!;
-                    _userProvider.updateLoginUser(userItem);
-                    return _buildBody(userItem);
-                  })
-        ]),
+        body: _curUser != null
+            ? _buildBody(_curUser!)
+            :
+            // _curUser를 initState에서 체크함에도 불구하고 null인 경우가 있음. (신규가입 후 프로필 저장 후 돌아왔을때)
+            FutureBuilder<UserItem?>(
+                future: _fetchUser(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (!snapshot.hasData || snapshot.hasError) {
+                    return const Center(
+                      child: Text('문제가 발생했어요'),
+                    );
+                  }
+                  final userItem = snapshot.data!;
+                  _userProvider.updateLoginUser(userItem);
+                  return _buildBody(userItem);
+                }),
       ),
     );
   }
@@ -130,23 +128,16 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
     _userProvider.updateLoginUser(userItem);
     return CommonBody(
       title: '마이페이지',
+      rightButton: IconButton(onPressed: _goSettingPage, icon: const Icon(Icons.settings)),
       child: Column(
         children: [
           ProfileCard(userItem),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-            ),
+          SizedBox(
+            height: 50,
             child: TabBar(
               tabs: [
-                Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Text("위시리스트", style: TextStyle(color: Colors.black))),
-                Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Text("준 선물리스트", style: TextStyle(color: Colors.black)))
+                const Text("내 위시", style: TextStyle(color: Colors.black)),
+                const Text("보낸 선물", style: TextStyle(color: Colors.black))
               ],
               unselectedLabelColor: Colors.black,
               controller: _tabController,
@@ -156,17 +147,17 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
               future: _fetchRegistry(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 }
                 if (snapshot.hasError) {
-                  return Center(
+                  return const Center(
                     child: Text('문제가 발생했어요'),
                   );
                 }
                 if (!snapshot.hasData) {
-                  return Center(
+                  return const Center(
                     child: Text('나의 위시를 추가해 보세요'),
                   );
                 }

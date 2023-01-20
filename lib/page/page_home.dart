@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top:120, left: 20),
+          padding: const EdgeInsets.only(top:120, left: 20, right: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

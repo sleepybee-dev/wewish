@@ -2,8 +2,15 @@
     package="com.codeinsongdo.wewish">
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+    </queries>
+
    <application
-        android:label="wewish"
+        android:label="위위시"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">

@@ -22,7 +22,6 @@ class _SearchPageState extends State<SearchPage> {
   late RegistryProvider _registryProvider;
   String _keyword = "";
 
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -35,24 +34,21 @@ class _SearchPageState extends State<SearchPage> {
       body: CommonBody(
         child: Column(
           children: [
-            Row(
-              children: [
-                IconButton(onPressed: (){}, icon: const Icon(Icons.chevron_left)),
-                Expanded(child: SearchTextField(
-                    autofocus: false,
-                    hintText: '이름을 입력하세요',
-                  onChanged: (value) {
-                    _keyword = value;
-                  },
-                  onPressed: () => _doSearch()
-                )),
-              ],
-            ),
+            SearchTextField(
+                autofocus: false,
+                hintText: '이름을 입력하세요',
+                onChanged: (value) {
+                  _keyword = value;
+                },
+                onSubmitted: (value) => _doSearch(value),
+                onPressed: () => _doSearch(_keyword)),
             Expanded(
                 child: ListView.builder(
-                  itemCount: _registryProvider.registryList.length,
+                    padding: EdgeInsets.zero,
+                    itemCount: _registryProvider.registryList.length,
                     itemBuilder: (context, index) {
-                      return _buildListTile(_registryProvider.registryList[index]);
+                      return _buildListTile(
+                          _registryProvider.registryList[index]);
                     }))
           ],
         ),
@@ -60,26 +56,25 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  _doSearch() {
-    _registryProvider.fetchRegistryList(_keyword);
+  _doSearch(String keyword) {
+    _registryProvider.fetchRegistryList(keyword);
   }
 
   @override
   void dispose() {
-    _registryProvider.clear();
+    // _registryProvider.clear();
     super.dispose();
   }
 
   Widget _buildListTile(RegistryItem registryItem) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
-      child: Container(
-        color: Colors.white,
-        child: ListTile(
-          title: ProfileCard(registryItem.user),
-          trailing: Text(registryItem.wishList.length.toString()),
-          onTap: () => _goRegistryPage(registryItem),
+      child: GestureDetector(
+        child: ProfileCard(
+          registryItem.user,
+          wishCount: registryItem.wishList.length,
         ),
+        onTap: () => _goRegistryPage(registryItem),
       ),
     );
   }
@@ -87,5 +82,4 @@ class _SearchPageState extends State<SearchPage> {
   _goRegistryPage(RegistryItem registryItem) {
     Navigator.pushNamed(context, router.wishlistPage, arguments: registryItem);
   }
-
 }

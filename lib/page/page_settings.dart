@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_user.dart';
@@ -60,7 +61,7 @@ class MyStatelessWidget extends StatelessWidget {
               label: '개인정보 처리 방침',
             ),
             _buildSettingButton(
-              onPressed: () {},
+              onPressed: () => _sendMail(context),
               label: '회원 탈퇴',
             ),
             _buildSettingButton(
@@ -86,7 +87,7 @@ class MyStatelessWidget extends StatelessWidget {
         height: 56,
         child: Padding(
           padding: const EdgeInsets.only(left:20.0),
-          child: Text(label, textAlign: TextAlign.left, style: TextStyle(fontSize: 16),),
+          child: Text(label, textAlign: TextAlign.left, style: const TextStyle(fontSize: 16),),
         ),
         ),
     );
@@ -96,5 +97,18 @@ class MyStatelessWidget extends StatelessWidget {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     }
+  }
+
+  _sendMail(BuildContext context) async {
+    final Email email = Email(
+      body: '계정 : ${userItem.email}\n닉네임 : ${userItem.nickname}\n회원 탈퇴 및 계정 정보 삭제에 동의합니다.',
+      subject: '[회원탈퇴요청]',
+      recipients: ['sleepybee410@gmail.com'],
+      isHTML: false,
+    );
+
+    FlutterEmailSender.send(email).then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('회원탈퇴 접수하셨다면 처리 후 해당 계정으로 회신 드리겠습니다.')));
+    });
   }
 }

@@ -105,6 +105,10 @@ class _HomeState extends State<Home> {
 
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
+      unselectedItemColor: Colors.grey.withOpacity(0.5),
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
+      iconSize: 32,
       items: const [
         BottomNavigationBarItem(
             icon: Icon(Icons.search), label: 'search'),

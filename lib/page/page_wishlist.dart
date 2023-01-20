@@ -56,7 +56,7 @@ class _WishListPageState extends State<WishListPage> {
   Widget _buildBody(RegistryItem registryItem) {
     return Column(
       children: [
-        ProfileCard(registryItem.user),
+        ProfileCard(registryItem.user, wishCount: registryItem.wishList.length,),
         Expanded(child: _buildWishList(_curWishList)),
       ],
     );
@@ -93,8 +93,9 @@ class _WishListPageState extends State<WishListPage> {
 
       List<WishItem> newWishList = after;
       ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
-        WishItem actionItem = after[index]..wishUser = widget.registryItem.user;
-        _updateMyAction(actionItem);
+        WishItem actionItem = after[index]
+          ..wishUser = widget.registryItem.user
+        _updateMyAction(originList[index], actionItem);
         setState(() {
           _curWishList = newWishList;
         });
@@ -137,7 +138,7 @@ class _WishListPageState extends State<WishListPage> {
       List<WishItem> newWishList = after;
       ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
         WishItem actionItem = after[index]..wishUser = widget.registryItem.user;
-        _updateMyAction(actionItem);
+        _updateMyAction(originList[index], actionItem);
         setState(() {
           _curWishList = newWishList;
         });
@@ -151,7 +152,8 @@ class _WishListPageState extends State<WishListPage> {
     }
   }
 
-  void _updateMyAction(WishItem actionItem) async {
+  void _updateMyAction(WishItem originWish, WishItem actionItem) async {
+    actionItem = actionItem..actionDate = DateTime.now();
     if (_userProvider.user != null) {
       final snapshot = await FirebaseFirestore.instance.collection('registry').where('user.uId', isEqualTo: _userProvider.user!.uId)
           .get();
@@ -163,6 +165,9 @@ class _WishListPageState extends State<WishListPage> {
           }
         );
       } else {
+        snapshot.docs[0].reference.update({
+          'actions' : FieldValue.arrayRemove([originWish.toJson()])
+        });
         snapshot.docs[0].reference.update({
           'actions' : FieldValue.arrayUnion([actionItem.toJson()])
         });

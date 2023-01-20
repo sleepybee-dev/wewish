@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
             create: (BuildContext context) => UserProvider()),
       ],
       child: MaterialApp(
-          title: 'WeWish',
+          title: '위위시',
           theme: _wewishTheme,
           onGenerateRoute: router.generateRoute,
           initialRoute: router.home,
@@ -95,9 +95,11 @@ class MyApp extends StatelessWidget {
   final _wewishTheme = ThemeData(
     textTheme: const TextTheme(
       headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, letterSpacing: -1),
+      titleLarge: TextStyle(fontWeight: FontWeight.w500, letterSpacing: -1)
     ).apply(bodyColor: Colors.black87, displayColor: Colors.black87),
     fontFamily: 'AppleSDGothicNeo',
     // colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF90DFF9)),
+    scaffoldBackgroundColor: Colors.white,
     primarySwatch: const MaterialColor(0xFF90DFF9, {
       50: Color(0xffe5f4fd),
       100: Color(0xffbee3fa),

@@ -14,6 +14,7 @@ class WishItem {
   bool isPresented = false;
   bool isReceived = false;
   UserItem? actionUser;
+  DateTime? actionDate;
   UserItem? wishUser;
 
   WishItem();
@@ -37,6 +38,9 @@ class WishItem {
         createdDate = json['createdDate'] == null
             ? DateTime.now()
             : (json['createdDate'] as Timestamp).toDate(),
+        actionDate = json['actionDate'] == null
+            ? null
+            : (json['createdDate'] as Timestamp).toDate(),
         modifiedDate = json['modifiedDate'] == null
             ? DateTime.now()
             : (json['modifiedDate'] as Timestamp).toDate();
@@ -52,6 +56,7 @@ class WishItem {
         'category': category.toJson(),
         'price': price,
         'createdDate': createdDate,
-        'modifiedDate': modifiedDate
+        'modifiedDate': modifiedDate,
+        'actionDate': actionDate
       };
 }

@@ -1,7 +1,9 @@
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:provider/provider.dart';
 import 'package:wewish/model/item_wish.dart';
+import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/ui/card_wish.dart';
 
 class MyWishList extends StatefulWidget {
@@ -15,6 +17,14 @@ class MyWishList extends StatefulWidget {
 }
 
 class _MyWishListState extends State<MyWishList> {
+
+  late UserProvider _userProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _userProvider = context.watch<UserProvider>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,40 +46,43 @@ class _MyWishListState extends State<MyWishList> {
 
   Widget _buildShareBar() {
     return Container(
-      width: 350,
+      width: double.infinity,
       height: 50,
-      margin: EdgeInsets.only(right: 30),
+      margin: const EdgeInsets.only(left:30, right: 30),
       alignment: Alignment.center,
       child: OutlinedButton(
           onPressed: () => doShare(),
+          style: OutlinedButton.styleFrom(
+            primary: Colors.black,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("메세지와 함께 공유하기"),
-              Icon(Icons.share),
+              const Text("내 위시리스트 공유하기"),
+              const Icon(Icons.share),
             ],
-          ),
-          style: OutlinedButton.styleFrom(
-            primary: Colors.black,
           )),
     );
   }
 
   doShare() {
+    if (_userProvider.user == null) {
+      return;
+    }
     final dynamicLinkParams = DynamicLinkParameters(
       uriPrefix: "https://wewish.page.link/",
       link: Uri.parse("https://wewish.com/wishlist?rId=${widget.registryId}"),
       androidParameters:
           const AndroidParameters(packageName: "com.codeinsongdo.wewish"),
       iosParameters: const IOSParameters(bundleId: "com.codeinsongdo.wewish"),
-      socialMetaTagParameters: const SocialMetaTagParameters(
-        title: '님의 위시리스트'
+      socialMetaTagParameters: SocialMetaTagParameters(
+        title: '${_userProvider.user!.nickname}님의 위시리스트'
       )
     );
     FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams).then((value) {
       FlutterShare.share(
         title: '위위시',
-        text: '님의 선물리스트',
+        text: '${_userProvider.user!.nickname}님의 선물리스트',
         linkUrl: value.shortUrl.toString(),
       );
     });

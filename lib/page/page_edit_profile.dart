@@ -9,6 +9,7 @@ import 'package:wewish/constants.dart';
 import 'package:wewish/model/item_user.dart';
 import 'package:path/path.dart';
 import 'package:wewish/ui/body_common.dart';
+import 'package:wewish/ui/button_text_primary.dart';
 import 'package:wewish/ui/textfield_common.dart';
 
 class EditProfile extends StatefulWidget {
@@ -93,11 +94,9 @@ class _EditProfileState extends State<EditProfile> {
                             TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                     hashtagField(),
                     SizedBox(height: 20),
-                    ElevatedButton(
-                      child: Text("변경 사항 저장"),
+                    PrimaryTextButton(
+                      label: "변경 사항 저장",
                       onPressed: () => _doUpdateProfile(context),
-                      style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(400, 50)),
                     )
                   ],
                 ))

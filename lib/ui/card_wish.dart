@@ -203,7 +203,7 @@ class _WishCardState extends State<WishCard> {
             : Theme.of(context).primaryColor;
       })),
       onPressed: _curStatus == WishStatus.bookedBySomeone
-          ? () => _showSnackBar('다른 사람이 선물 예약했어요.')
+          ? () => _showSnackBar(FirebaseAuth.instance.currentUser == null ? '로그인이 필요한 액션입니다.':'다른 사람이 선물 예약했어요.')
           : widget.onReservationPressed, // Navigate 필요
       child: Text(
         showCancelButton ? '예약취소' : '예약',
@@ -227,7 +227,7 @@ class _WishCardState extends State<WishCard> {
         _curStatus == WishStatus.given;
 
     return ElevatedButton(
-        onPressed: _curStatus == WishStatus.presentedByMySelf
+        onPressed: _curStatus == WishStatus.presentedBySomeone
             ? () => _showSnackBar('다른 사람이 선물 표시했어요.')
             : widget.onPresentPressed,
         child: Text(
