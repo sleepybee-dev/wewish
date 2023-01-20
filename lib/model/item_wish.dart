@@ -11,7 +11,7 @@ class WishItem {
   DateTime modifiedDate = DateTime.now();
 
   bool isBooked = false;
-  bool isChecked = false;
+  bool isPresented = false;
   bool isReceived = false;
   UserItem? actionUser;
 
@@ -24,9 +24,9 @@ class WishItem {
             ? CategoryItem()
             : CategoryItem.fromJson(json['category']),
         price = json['price'] as int,
-        isBooked = json['reservation_status'] as bool,
-        isChecked = json['check_status'] as bool,
-        isReceived = json['gift_status'] as bool,
+        isBooked = json['isBooked'] as bool,
+        isPresented = json['isPresented'] as bool,
+        isReceived = json['isReceived'] as bool,
         actionUser = json['actionUser'] == null
             ? null
             : UserItem.fromJson(json['actionUser']),
@@ -38,10 +38,10 @@ class WishItem {
             : (json['modifiedDate'] as Timestamp).toDate();
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'reservation_status': isBooked,
-        'check_status': isChecked,
-        'gift_status': isReceived,
-        'giver': actionUser,
+        'isBooked': isBooked,
+        'isPresented': isPresented,
+        'isReceived': isReceived,
+        'actionUser': actionUser != null ? actionUser!.toJson() : null,
         'name': productName,
         'url': url,
         'category': category.toJson(),

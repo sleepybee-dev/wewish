@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,6 +25,14 @@ class WishCard extends StatefulWidget {
 }
 
 class _WishCardState extends State<WishCard> {
+  WishStatus _curStatus = WishStatus.none;
+
+  @override
+  void initState() {
+    super.initState();
+    _curStatus = generateStatus(widget.wishItem);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -47,7 +56,7 @@ class _WishCardState extends State<WishCard> {
                       child: FutureBuilder<OpengraphData>(
                           future: _fetchOpengraphData(widget.wishItem.url),
                           builder: (context, snapshot) {
-                            Logger(printer:PrettyPrinter()).d(snapshot);
+                            Logger(printer: PrettyPrinter()).d(snapshot);
                             if (snapshot.connectionState ==
                                     ConnectionState.waiting ||
                                 (snapshot.connectionState ==
@@ -67,7 +76,11 @@ class _WishCardState extends State<WishCard> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.wishItem.productName, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                            Text(
+                              widget.wishItem.productName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             Text(
                               widget.wishItem.category.category,
                               style: TextStyle(fontWeight: FontWeight.bold),
@@ -136,12 +149,14 @@ class _WishCardState extends State<WishCard> {
     switch (curStatus) {
       case WishStatus.none:
         return Container();
-      case WishStatus.booked:
+      case WishStatus.bookedByMyself:
+      case WishStatus.bookedBySomeone:
         if (wishItem.actionUser != null) {
           message = '${wishItem.actionUser!.nickname}님이 예약하셨어요.';
         }
         break;
-      case WishStatus.presented:
+      case WishStatus.presentedByMySelf:
+      case WishStatus.presentedBySomeone:
         if (wishItem.actionUser != null) {
           message = '${wishItem.actionUser!.nickname}님이 선물하셨어요.';
         }
@@ -157,7 +172,7 @@ class _WishCardState extends State<WishCard> {
         bottom: 0,
         left: 0,
         child: Container(
-          height: 40,
+            height: 40,
             child: Text(
               message,
               textAlign: TextAlign.right,
@@ -168,10 +183,20 @@ class _WishCardState extends State<WishCard> {
 
   WishStatus generateStatus(WishItem wishItem) {
     if (wishItem.isBooked) {
-      return WishStatus.booked;
+      if (FirebaseAuth.instance.currentUser != null &&
+          wishItem.actionUser != null &&
+          wishItem.actionUser!.uId == FirebaseAuth.instance.currentUser!.uid) {
+        return WishStatus.bookedByMyself;
+      }
+      return WishStatus.bookedBySomeone;
     }
-    if (wishItem.isChecked) {
-      return WishStatus.presented;
+    if (wishItem.isPresented) {
+      if (FirebaseAuth.instance.currentUser != null &&
+          wishItem.actionUser != null &&
+          wishItem.actionUser!.uId == FirebaseAuth.instance.currentUser!.uid) {
+        return WishStatus.presentedByMySelf;
+      }
+      return WishStatus.presentedBySomeone;
     }
     if (wishItem.isReceived) {
       return WishStatus.given;
@@ -184,20 +209,64 @@ class _WishCardState extends State<WishCard> {
       height: 56,
       child: ButtonBar(
         alignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton(
-            onPressed:
-            widget.onReservationPressed, // Navigate 필요
-            child: Text('예약'),
-          ),
-          OutlinedButton(
-            onPressed: widget.onPresentPressed,
-            child: Text('선물하기'),
-          ),
-        ],
+        children: [_buildReservationButton(), _buildPresentButton()],
       ),
     );
   }
+
+  Widget _buildReservationButton() {
+    bool showCancelButton = _curStatus == WishStatus.bookedByMyself;
+    bool showDisableButton = _curStatus == WishStatus.bookedBySomeone ||
+        _curStatus == WishStatus.presentedBySomeone ||
+        _curStatus == WishStatus.presentedByMySelf ||
+        _curStatus == WishStatus.given;
+
+    return ElevatedButton(
+      style:
+          ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) {
+        return showDisableButton
+            ? Colors.black12
+            : Theme.of(context).primaryColor;
+      })),
+      onPressed: _curStatus == WishStatus.bookedBySomeone
+          ? _showSnackBar('다른 사람이 선물 예약했어요.')
+          : widget.onReservationPressed, // Navigate 필요
+      child: Text(
+        showCancelButton ? '예약취소' : '예약',
+        style: TextStyle(color: showCancelButton ? Colors.grey : Colors.white),
+      ),
+    );
+  }
+
+  _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 1),
+    ));
+  }
+
+  Widget _buildPresentButton() {
+    bool showCancelButton = _curStatus == WishStatus.presentedByMySelf;
+    bool showDisableButton = _curStatus == WishStatus.bookedBySomeone ||
+        _curStatus == WishStatus.presentedBySomeone ||
+        _curStatus == WishStatus.presentedByMySelf ||
+        _curStatus == WishStatus.given;
+
+    return ElevatedButton(
+        onPressed: showDisableButton ? () {} : widget.onPresentPressed,
+        child: Text(
+          showCancelButton ? '선물취소' : '선물하기',
+          style:
+              TextStyle(color: showCancelButton ? Colors.grey : Colors.white),
+        ));
+  }
 }
 
-enum WishStatus { none, booked, presented, given }
+enum WishStatus {
+  none,
+  bookedBySomeone,
+  bookedByMyself,
+  presentedBySomeone,
+  presentedByMySelf,
+  given
+}

@@ -19,14 +19,14 @@ class ProfileCard extends StatelessWidget {
             child: CircleAvatar(
               backgroundColor: Colors.amberAccent,
               backgroundImage: NetworkImage(userItem.profileUrl ?? defaultProfileUrl),
-              radius: 18.0,
+              radius: 30.0,
             ),
           ),
           Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(userItem.nickname),
+                  Text(userItem.nickname, style: Theme.of(context).textTheme.labelLarge,),
                   Expanded(
                     child: ListView.builder(
                         scrollDirection: Axis.horizontal,

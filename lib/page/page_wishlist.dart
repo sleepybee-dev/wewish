@@ -74,40 +74,32 @@ class _WishListPageState extends State<WishListPage> {
 
   void doReservation(int index) async {
     if (_userProvider.user != null) {
-      final ref = await FirebaseFirestore.instance
+      final ref = FirebaseFirestore.instance
           .collection('registry')
           .doc(widget.registryItem.registryId!);
       List<WishItem> originList = widget.registryItem.wishList;
       var tempUser = widget.registryItem.user;
 
       List<WishItem> after = originList;
-      print(after[index].productName);
-      print(after[index].isBooked);
 
-      String message = "";
 
       after[index].isBooked = !after[index].isBooked;
-      print(after[index].isBooked);
-      originList.forEach((element) {
-        print(element.toJson());
-      });
-      after.forEach((element) {
-        print(element.toJson());
-      });
+      after[index].actionUser = after[index].isBooked ? _userProvider.user : null;
 
-      // set사용
+      String message = after[index].isBooked ? '예약되었습니다.' : '예약취소되었습니다.';
+
       List<WishItem> newWishList = after;
-      ref.set({'wishlist': newWishList.map((e) => e.toJson()).toList()});
-
-      // arrayRemove, arrayUnion 말고 set 덮어쓰기로 구현
-      // removeWishlistToUpdateReservation(before, registryItem);
-      // addWishlistToUpdateReservation(temp, registryItem);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('예약되었습니다.'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+      ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
+        setState(() {
+          widget.registryItem.wishList = newWishList;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      });
     } else {
       // [TODO] 필요 기능: page_wish_reservation으로 이동
       // Navigator.push(

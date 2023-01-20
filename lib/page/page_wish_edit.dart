@@ -11,6 +11,7 @@ import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/provider/provider_bottom_nav.dart';
 import 'package:wewish/provider/provider_user.dart';
+import 'package:wewish/ui/body_common.dart';
 import 'package:wewish/ui/button_text_primary.dart';
 import 'package:wewish/ui/textfield_common.dart';
 import 'package:wewish/util/category_parser.dart';
@@ -85,14 +86,17 @@ class _WishEditPageState extends State<WishEditPage>
     return SafeArea(
         child: Scaffold(
             resizeToAvoidBottomInset: false,
-            appBar: AppBar(title: const Text('')),
-            body: _buildBody()));
+            body: CommonBody(
+              showBackButton: true,
+                onBackPressed: ()=> Navigator.pop(context),
+                title: '위시 추가',
+                child: _buildBody())));
   }
 
   Widget _buildBody() {
     return Stack(children: [
       _onLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const IgnorePointer(child: Center(child: CircularProgressIndicator()))
           : Container(),
       Column(
         children: [
