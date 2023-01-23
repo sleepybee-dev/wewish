@@ -143,25 +143,7 @@ class _HomeState extends State<Home> {
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
       // String realIlink = initialLink.toString().replaceAll("%3D", "=");
       logger.d(dynamicLinkData.link);
-      final params = dynamicLinkData.link.queryParameters;
-      final rId = params['rId'];
-      setState(() {
-        _onLoadingDynamicLinkData = true;
-      });
-      if (rId != null) {
-        _fetchRegistryByRId(rId).then((registryItem) {
-          setState(() {
-            _onLoadingDynamicLinkData = false;
-          });
-          if (registryItem != null) {
-            _goWishListPage(registryItem);
-          }
-        });
-      } else {
-        setState(() {
-          _onLoadingDynamicLinkData = false;
-        });
-      }
+      _goToDeepLink(dynamicLinkData);
     }).onError((error) {
       setState(() {
         _onLoadingDynamicLinkData = false;
@@ -174,6 +156,7 @@ class _HomeState extends State<Home> {
       final Uri deepLink = initialLink.link;
       // Example of using the dynamic link to push the user to a different screen
       logger.d(deepLink);
+      _goToDeepLink(initialLink);
     }
   }
 
@@ -215,5 +198,27 @@ class _HomeState extends State<Home> {
 
   Widget _buildProgressCircle() {
     return Center(child: CircularProgressIndicator(),);
+  }
+
+  void _goToDeepLink(PendingDynamicLinkData dynamicLinkData) {
+    final params = dynamicLinkData.link.queryParameters;
+    final rId = params['rId'];
+    setState(() {
+      _onLoadingDynamicLinkData = true;
+    });
+    if (rId != null) {
+      _fetchRegistryByRId(rId).then((registryItem) {
+        setState(() {
+          _onLoadingDynamicLinkData = false;
+        });
+        if (registryItem != null) {
+          _goWishListPage(registryItem);
+        }
+      });
+    } else {
+      setState(() {
+        _onLoadingDynamicLinkData = false;
+      });
+    }
   }
 }
