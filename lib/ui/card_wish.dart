@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wewish/model/item_action.dart';
+import 'package:wewish/model/item_user.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/util/meta_parser.dart';
 
@@ -30,6 +33,7 @@ class _WishCardState extends State<WishCard> {
   @override
   Widget build(BuildContext context) {
     _curStatus = generateStatus(widget.wishItem);
+    String createdDate = DateFormat('yy/MM/dd HH:mm').format(widget.wishItem.createdDate);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
@@ -76,21 +80,46 @@ class _WishCardState extends State<WishCard> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            widget.wishItem.productName,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.wishItem.productName,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                    ),
+                                    Text(
+                                      widget.wishItem.category.category,
+                                    ),
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '${widget.wishItem.price.toString()}원',
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize:20),
+                                      ),
+                                    ]
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                          Text(
-                            widget.wishItem.category.category,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '${widget.wishItem.price.toString()}원',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                          // Text(
+                          //   createdDate,
+                          //   style: TextStyle(color:Colors.grey, fontSize:14),
+                          // ),
                           widget.showActionBar
                               ? _buildActionButtonBar()
                               : Container(),
@@ -118,26 +147,31 @@ class _WishCardState extends State<WishCard> {
   }
 
   Widget _buildStatusLabel(WishItem wishItem) {
+    if (wishItem.actionList.isEmpty) {
+      return Container();
+    }
     WishStatus curStatus = generateStatus(widget.wishItem);
+    UserItem actionUser = wishItem.actionList.last.actionUser;
+
     String message = '';
     switch (curStatus) {
       case WishStatus.none:
         return Container();
       case WishStatus.bookedByMyself:
       case WishStatus.bookedBySomeone:
-        if (wishItem.actionUser != null) {
-          message = '${wishItem.actionUser!.nickname}님이 예약하셨어요.';
+        if (actionUser != null) {
+          message = '${actionUser.nickname}님이 예약하셨어요.';
         }
         break;
       case WishStatus.presentedByMySelf:
       case WishStatus.presentedBySomeone:
-        if (wishItem.actionUser != null) {
-          message = '${wishItem.actionUser!.nickname}님이 선물하셨어요.';
+        if (actionUser != null) {
+          message = '${actionUser.nickname}님이 선물하셨어요.';
         }
         break;
       case WishStatus.given:
-        if (wishItem.actionUser != null) {
-          message = '${wishItem.actionUser!.nickname}님께 선물 받았어요.';
+        if (actionUser != null) {
+          message = '${actionUser.nickname}님께 선물 받았어요.';
         }
         break;
     }
@@ -156,23 +190,29 @@ class _WishCardState extends State<WishCard> {
   }
 
   WishStatus generateStatus(WishItem wishItem) {
-    if (wishItem.isBooked) {
+    if (wishItem.actionList.isEmpty) {
+      return WishStatus.none;
+    }
+
+    ActionItem lastAction = wishItem.actionList.last;
+
+    if (lastAction.actionStatus == ActionStatus.book) {
       if (FirebaseAuth.instance.currentUser != null &&
-          wishItem.actionUser != null &&
-          wishItem.actionUser!.uId == FirebaseAuth.instance.currentUser!.uid) {
+          lastAction.actionUser != null &&
+          lastAction.actionUser.uId == FirebaseAuth.instance.currentUser!.uid) {
         return WishStatus.bookedByMyself;
       }
       return WishStatus.bookedBySomeone;
     }
-    if (wishItem.isPresented) {
+    if (lastAction.actionStatus == ActionStatus.present) {
       if (FirebaseAuth.instance.currentUser != null &&
-          wishItem.actionUser != null &&
-          wishItem.actionUser!.uId == FirebaseAuth.instance.currentUser!.uid) {
+          lastAction.actionUser != null &&
+          lastAction.actionUser.uId == FirebaseAuth.instance.currentUser!.uid) {
         return WishStatus.presentedByMySelf;
       }
       return WishStatus.presentedBySomeone;
     }
-    if (wishItem.isReceived) {
+    if (lastAction.actionStatus == ActionStatus.given) {
       return WishStatus.given;
     }
     return WishStatus.none;

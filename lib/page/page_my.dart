@@ -172,7 +172,7 @@ class _MyPageState extends State<MyPage> with TickerProviderStateMixin {
                     ),
                     Container(
                       alignment: Alignment.center,
-                      child: ActionList(registryItem.actionList),
+                      child: ActionList(registryItem.actions, currentUser:_curUser!),
                     ),
                   ]),
                 );

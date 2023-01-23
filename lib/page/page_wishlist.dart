@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:wewish/model/item_action.dart';
 import 'package:wewish/model/item_registry.dart';
 import 'package:wewish/model/item_wish.dart';
 import 'package:wewish/provider/provider_user.dart';
@@ -84,20 +85,16 @@ class _WishListPageState extends State<WishListPage> {
           .collection('registry')
           .doc(widget.registryItem.registryId!);
       List<WishItem> originList = _curWishList;
-      List<WishItem> after = originList;
 
-      after[index].isBooked = !after[index].isBooked;
-      after[index].actionUser = after[index].isBooked ? _userProvider.user : null;
+      ActionStatus newAction = generateNewAction(originList[index].actionList, isBook:true);
+      ActionItem newActionItem = ActionItem(_userProvider.user!, DateTime.now().toLocal(), newAction);
+      originList[index].actionList.add(newActionItem);
+      String message = newAction == ActionStatus.book ? '예약되었습니다.' : '예약취소되었습니다.';
 
-      String message = after[index].isBooked ? '예약되었습니다.' : '예약취소되었습니다.';
-
-      List<WishItem> newWishList = after;
-      ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
-        WishItem actionItem = after[index]
-          ..wishUser = widget.registryItem.user
-        _updateMyAction(originList[index], actionItem);
+      ref.update({'wishlist': originList.map((e) => e.toJson()).toList()}).then((value) {
+        _updateMyAction(originList[index]);
         setState(() {
-          _curWishList = newWishList;
+          _curWishList = originList;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -128,19 +125,20 @@ class _WishListPageState extends State<WishListPage> {
           .collection('registry')
           .doc(widget.registryItem.registryId!);
       List<WishItem> originList = _curWishList;
-      List<WishItem> after = originList;
 
-      after[index].isPresented = !after[index].isPresented;
-      after[index].actionUser = after[index].isPresented ? _userProvider.user : null;
+      ActionStatus newAction = generateNewAction(originList[index].actionList, isBook:false);
+      ActionItem newActionItem = ActionItem(_userProvider.user!, DateTime.now().toLocal(), newAction);
 
-      String message = after[index].isPresented ? '선물하였습니다.' : '선물 표시 취소되었습니다.';
+      // 액션 추가
+      originList[index].actionList.add(newActionItem);
 
-      List<WishItem> newWishList = after;
-      ref.update({'wishlist': newWishList.map((e) => e.toJson()).toList()}).then((value) {
-        WishItem actionItem = after[index]..wishUser = widget.registryItem.user;
-        _updateMyAction(originList[index], actionItem);
+      String message = newAction == ActionStatus.present ? '선물하였습니다.' : '선물 표시 취소되었습니다.';
+
+      ref.update({'wishlist': originList.map((e) => e.toJson()).toList()}).then((value) {
+        WishItem actionItem = originList[index]..wishUser = widget.registryItem.user;
+        _updateMyAction(originList[index]);
         setState(() {
-          _curWishList = newWishList;
+          _curWishList = originList;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -152,8 +150,7 @@ class _WishListPageState extends State<WishListPage> {
     }
   }
 
-  void _updateMyAction(WishItem originWish, WishItem actionItem) async {
-    actionItem = actionItem..actionDate = DateTime.now();
+  void _updateMyAction(WishItem newWish) async {
     if (_userProvider.user != null) {
       final snapshot = await FirebaseFirestore.instance.collection('registry').where('user.uId', isEqualTo: _userProvider.user!.uId)
           .get();
@@ -161,16 +158,53 @@ class _WishListPageState extends State<WishListPage> {
         FirebaseFirestore.instance.collection('registry').add(
           {
             'user': _userProvider.user!.toJson(),
-            'actions': [actionItem.toString()]
+            'actions': [newWish.toString()]
           }
         );
       } else {
-        snapshot.docs[0].reference.update({
-          'actions' : FieldValue.arrayRemove([originWish.toJson()])
+        FirebaseFirestore.instance.runTransaction((transaction) async {
+          DocumentSnapshot transSnapshot = await transaction.get(snapshot.docs[0].reference);
+          if (!transSnapshot.exists) {
+            throw Exception('Does not exists');
+          } else {
+            final docRef = transSnapshot.get('actions');
+            if (docRef == null) {
+              transaction.update(transSnapshot.reference, {
+                'actions': [newWish.toJson()]
+              });
+            } else {
+              final actions = docRef as List<dynamic>;
+              List<WishItem> resultActions = actions.map((e) =>
+                  WishItem.fromJson(e)).toList();
+              for (dynamic action in actions) {
+                WishItem actionWish = WishItem.fromJson(
+                    action as Map<String, dynamic>);
+                if (actionWish.url == newWish.url) {
+                  resultActions.removeWhere((item) => item.url == newWish.url);
+                  resultActions.add(newWish);
+                  transaction.update(transSnapshot.reference, {
+                    'actions': resultActions.map((e) => e.toJson()).toList()});
+                }
+              }
+            }
+          }
         });
-        snapshot.docs[0].reference.update({
-          'actions' : FieldValue.arrayUnion([actionItem.toJson()])
-        });
+      }
+    }
+  }
+
+  ActionStatus generateNewAction(List<ActionItem> actionList, {required bool isBook}) {
+    if (actionList.isEmpty) {
+      return ActionStatus.none;
+    } else {
+      if (isBook) {
+        return actionList.last.actionStatus == ActionStatus.book
+            ? ActionStatus.bookCancel
+            : ActionStatus.book;
+      } else {
+        return actionList.last.actionStatus == ActionStatus.present
+            ? ActionStatus.presentCancel
+            : ActionStatus.present;
       }
     }
   }

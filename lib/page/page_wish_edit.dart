@@ -174,6 +174,7 @@ class _WishEditPageState extends State<WishEditPage>
   }
 
   void _showCategoryBottomSheet() {
+    FocusManager.instance.primaryFocus?.unfocus();
     showModalBottomSheet(
         context: context,
         isDismissible: false,

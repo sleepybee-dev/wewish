@@ -57,6 +57,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _doSearch(String keyword) {
+    FocusManager.instance.primaryFocus?.unfocus();
     _registryProvider.fetchRegistryList(keyword);
   }
 
