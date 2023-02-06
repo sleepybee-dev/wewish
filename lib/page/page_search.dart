@@ -57,6 +57,10 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _doSearch(String keyword) {
+    if (keyword.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('2글자 이상으로 검색해 주세요.')));
+      return;
+    }
     FocusManager.instance.primaryFocus?.unfocus();
     _registryProvider.fetchRegistryList(keyword);
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,12 @@ class _HomeState extends State<Home> {
     super.initState();
     getSharedText().then((value) {
       if (value.contains("http")) {
-        Navigator.pushNamed(context, router.wishEditPage, arguments: value);
+        if (FirebaseAuth.instance.currentUser != null) {
+          Navigator.pushNamed(context, router.wishEditPage, arguments: value);
+        } else {
+          _navigationProvider.updateCurrentTab(MainTab.myPage);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인하여 나의 위시리스트를 관리해봐요.')));
+        }
       }
     });
     getDynamicLink();
@@ -76,25 +82,25 @@ class _HomeState extends State<Home> {
   Widget _buildTopNavBar() {
     return Row(
       children: [
-        Text(
+        const Text(
           'We Wish',
           style: TextStyle(fontSize: 32),
         ),
         Expanded(child: Container()),
         IconButton(
-          icon: Icon(Icons.search),
+          icon: const Icon(Icons.search),
           onPressed: () => _navigationProvider.updateCurrentTab(MainTab.search),
           color:
               _navigationProvider.currentTab == MainTab.search ? Theme.of(context).primaryColor : Colors.black12,
         ),
         IconButton(
-          icon: Icon(Icons.home),
+          icon: const Icon(Icons.home),
           onPressed: () => _navigationProvider.updateCurrentTab(MainTab.home),
           color:
               _navigationProvider.currentTab == MainTab.home ? Theme.of(context).primaryColor : Colors.black12,
         ),
         IconButton(
-          icon: Icon(Icons.person),
+          icon: const Icon(Icons.person),
           onPressed: () => _navigationProvider.updateCurrentTab(MainTab.myPage),
           color:
               _navigationProvider.currentTab == MainTab.myPage ? Theme.of(context).primaryColor : Colors.black12,
@@ -197,7 +203,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildProgressCircle() {
-    return Center(child: CircularProgressIndicator(),);
+    return const Center(child: CircularProgressIndicator(),);
   }
 
   void _goToDeepLink(PendingDynamicLinkData dynamicLinkData) {

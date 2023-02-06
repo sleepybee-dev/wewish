@@ -1,6 +1,7 @@
 class UserItem {
   String? uId;
   String nickname = 'No Nickname';
+  List<String> nicknameArray = [];
   String? profileUrl;
   List<String> hashTag = [];
   String social = 'kakao'; // kakao, apple
@@ -13,6 +14,11 @@ class UserItem {
   UserItem.fromJson(Map<String, dynamic> json)
       : uId = json['uId'],
         nickname = json['nickname'],
+        nicknameArray = json['nicknameArray'] == null
+            ? json['nickname'].toString().split('')
+            : (json['nicknameArray'] as List<dynamic>)
+            .map((e) => e.toString())
+            .toList(),
         hashTag = json['hashtag'] == null
             ? []
             : (json['hashtag'] as List<dynamic>)
@@ -25,6 +31,7 @@ class UserItem {
   Map<String, dynamic> toJson() => <String, dynamic>{
         'uId': uId,
         'nickname': nickname,
+        'nicknameArray': nicknameArray,
         'profileUrl': profileUrl,
         'hashtag': hashTag,
         'social': social,

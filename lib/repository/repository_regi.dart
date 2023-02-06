@@ -4,9 +4,9 @@ import 'package:wewish/model/item_wish.dart';
 
 class RegiRepository {
   Future<List<RegistryItem>> fetchRegistry(String keyword) async {
-    QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance
-        .collection('registry')
-        .where('user.nickname', isGreaterThanOrEqualTo: keyword)
+
+    QuerySnapshot<RegistryItem>? snapshot = await FirebaseFirestore.instance.collection('registry')
+        .where('user.nicknameArray', arrayContainsAny: keyword.split(''))
         .withConverter<RegistryItem>(
           fromFirestore: (snapshots, _) =>
               RegistryItem.fromJson(snapshots.data()!),
@@ -20,7 +20,6 @@ class RegiRepository {
       registryItem.registryId = e.id;
       return registryItem;
     }).toList();
-
   }
 
   Future<void> addRegistry(String userId, WishItem wishItem) async {

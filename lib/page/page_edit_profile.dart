@@ -169,9 +169,15 @@ class _EditProfileState extends State<EditProfile> {
           tagCancelIcon: Icon(Icons.cancel, size: 18.0, color: Colors.black),
           tagPadding: const EdgeInsets.all(6.0)),
       onTag: (tag) {
+        if (tag.contains("#")) {
+          tag = tag.replaceAll('#', '');
+        }
         widget.userItem.hashTag.add(tag);
       },
       onDelete: (tag) {
+        if (tag.contains("#")) {
+          tag = tag.replaceAll('#', '');
+        }
         widget.userItem.hashTag.remove(tag);
       },
       textFieldStyler: TextFieldStyler(
