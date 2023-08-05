@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
 import 'package:wewish/firebase_options.dart';
@@ -12,8 +13,10 @@ import 'package:wewish/provider/provider_user.dart';
 import 'package:wewish/router.dart' as router;
 
 void main() async {
-  KakaoSdk.init(nativeAppKey: 'fd06fc462ea9be9e6ccbb2cc0a121309');
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
+  KakaoSdk.init(nativeAppKey: dotenv.env['kakaoNativeAppKey']);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
